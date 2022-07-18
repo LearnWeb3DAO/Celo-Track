@@ -200,7 +200,7 @@ There's a couple of things we can still do here.
 
 Keeping these in mind, let's add the following modifiers and event definition
 
-```solidity=
+```solidity
 // Requires the msg.sender is the owner of the specified NFT
 modifier isNFTOwner(address nftAddress, uint256 tokenId) {
     require(
