@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  width: 80%;
+  margin: auto;
+  margin-top: 2rem;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.details img {
+  width: 512px;
+  border-radius: 2rem;
+}
+
+.details span {
+  margin: 0.25rem;
+  padding: 1rem;
+  width: 100%;
+  text-align: center;
+  background-color: lightblue;
+  border-radius: 1rem;
+}
+
+.details span:first-of-type {
+  margin-top: 1rem;
+}
+
+.options {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.updateListing {
+  display: flex;
+  justify-content: space-between;
+}
+
+.updateListing input {
+  margin-right: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #cccccc;
+}
+
+.btn {
+  margin-top: 1rem;
+  padding: 0.5rem;
+}

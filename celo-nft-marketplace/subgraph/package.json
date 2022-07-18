@@ -1,0 +1,16 @@
+{
+  "name": "Celo-NFT-Marketplace",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ haardikk21/Celo-NFT-Marketplace",
+    "create-local": "graph create --node http://localhost:8020/ haardikk21/Celo-NFT-Marketplace",
+    "remove-local": "graph remove --node http://localhost:8020/ haardikk21/Celo-NFT-Marketplace",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 haardikk21/Celo-NFT-Marketplace"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.28.1",
+    "@graphprotocol/graph-ts": "0.26.0"
+  }
+}

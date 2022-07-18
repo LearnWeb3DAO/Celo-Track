@@ -1,0 +1,12 @@
+type ListingEntity @entity {
+  id: ID!
+  nftAddress: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  seller: Bytes! # address
+  # The exclamation mark (!) resembles a *required* property
+  # Lack of an exclamation mark resembles an optional property
+  # Since the listing will not have a buyer until it is sold,
+  # We mark the buyer as an optional property
+  buyer: Bytes # address
+}
