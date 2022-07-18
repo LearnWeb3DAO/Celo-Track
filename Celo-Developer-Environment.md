@@ -46,3 +46,5 @@ Great, now you have a Celo wallet and some funds on the Alfojores testnet to pla
 Move on to continue building on Celo, and learn more.
 
 🚀🚀🚀
+
+<SubmitQuiz />

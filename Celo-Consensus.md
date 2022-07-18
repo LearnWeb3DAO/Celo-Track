@@ -99,3 +99,5 @@ These are optional readings if you want to dig even deeper:
 
 ## References
 - [Byzantine Generals' Problem Image](https://academy.moralis.io/wp-content/uploads/2021/06/maxresdefault-2-1.jpg)
+
+<SubmitQuiz />
