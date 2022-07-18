@@ -8,11 +8,14 @@ In this level, we will be building **OUR OWN** NFT marketplace, similar to OpenS
 
 We will use a bunch of developer tools to make this possible, and this is going to be an amazing level!
 
-- Quiknode
 - Hardhat
 - NextJS (React)
 - Celo
 - The Graph
+- Rainbowkit
+- Wagmi
+- Ethers.js
+- Metamask / Alfajores Wallet
 
 This level will also help solidify your understanding of **events** on the blockchain, as once we get around to building the frontend, indexing events through The Graph will become extremely important.
 
