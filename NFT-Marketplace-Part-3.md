@@ -1044,4 +1044,6 @@ If you'd like to take this NFT Marketplace project even further, here are a few 
 
 Hope you had as much fun doing this tutorial as we did writing it. As always, share your progress on Twitter, don't forget to tag @LearnWeb3DAO, and ask for help in the Discord if you ever feel lost!
 
+To verify this level, submit the subgraph URL below and select 'The Graph' as the network.
+
 Cheers 🥂

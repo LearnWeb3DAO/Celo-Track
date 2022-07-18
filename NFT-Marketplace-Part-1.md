@@ -606,3 +606,5 @@ You're all set! You can look up your contract on [CeloScan](https://alfajores.ce
 This level was all about the smart contract. Moving forward, we will develop the subgraph for this contract, and then finally develop the frontend for the dApp using Next.
 
 Drop your CeloScan link in the Discord `#showcase` channel and share your progress! See you in the next one 🫡
+
+To verify this level, submit your Marketplace contract address below and select the Celo Alfajores Testnet while doing so.

@@ -512,3 +512,7 @@ This will redeploy your subgraph, and you can do this as many times as you want.
 Note, however, every time you redeploy the subgraph, the node will start syncing over again from the `startBlock`. This is because it's possible you may have made changes on how you want data to be stored - for example, changing how you calculate the ID of each entity, or maybe adding/removing properties from the entity, etc.
 
 Therefore, each update will require you to wait a little bit for the sync to complete, and wait for the node to catchup to the latest block.
+
+### Conclusion
+
+To verify this level, submit your subgraph URL below and select The Graph as the network.
