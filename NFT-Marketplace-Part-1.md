@@ -31,7 +31,7 @@ This is what we will be building, by the end of this lesson series:
 
 Create a new directory on your computer, and initialize a git repo there, which will house all our code, by running the following command.
 
-```sh
+```shell
 mkdir celo-nft-marketplace
 cd celo-nft-marketplace
 git init
@@ -52,7 +52,7 @@ Let's set up a new Hardhat project to write our smart contracts.
 
 1. Open up a terminal, and create a folder for Hardhat within the directory you just created
 
-```sh
+```shell
 cd celo-nft-marketplace
 mkdir hardhat
 cd hardhat
@@ -60,20 +60,20 @@ cd hardhat
 
 2. To set up the project, execute these commands
 
-```sh
+```shell
 npm init --yes
 npm install --save-dev hardhat
 ```
 
 3. If you are on Windows, please do this extra step and install these libraries as well :)
 
-```sh
+```shell
 npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
 ```
 
 4. Finally, run the following command and go through the interactive prompt
 
-```sh
+```shell
 npx hardhat
 ```
 
@@ -86,7 +86,7 @@ We now have our Hardhat project ready to go!
 
 5. Let's also install OpenZeppelin contracts library while we're here, as we will use `IERC721.sol` later
 
-```sh
+```shell
 npm install @openzeppelin/contracts
 ```
 
@@ -496,7 +496,7 @@ For the RPC URL, we will be using the public Celo testnet RPC URL provided by Fo
 
 So, let's create a `.env` file within the `hardhat` folder. Replace the private key with your own.
 
-```sh
+```shell
 # .env file
 PRIVATE_KEY="ABCDEF..."
 RPC_URL="https://alfajores-forno.celo-testnet.org"
@@ -504,7 +504,7 @@ RPC_URL="https://alfajores-forno.celo-testnet.org"
 
 Great, now let's install the `dotenv` npm package so we can read environment variables from the `.env` file. Open up your terminal within the `hardhat` folder, and execute the following:
 
-```sh
+```shell
 npm install dotenv
 ```
 
@@ -585,7 +585,7 @@ Amazing! If you've done everything correctly, you should now be able to just dep
 
 Run the following command in your terminal, while pointing to the `hardhat` folder.
 
-```sh
+```shell
 npx hardhat run scripts/deploy.js --network alfajores
 ```
 

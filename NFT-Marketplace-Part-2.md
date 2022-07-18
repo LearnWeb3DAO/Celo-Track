@@ -24,7 +24,7 @@ The Graph requires using `yarn` to install dependencies. `yarn` is an alternativ
 
 If you don't have `yarn` installed on your computer, you can install it by running the following command:
 
-```sh
+```shell
 npm install -g yarn
 ```
 
@@ -34,19 +34,19 @@ Let's create a new folder and set up a Graph project in there.
 
 1. Open up a terminal, and install the Graph CLI on your computer globally
 
-```sh
+```shell
 yarn global add @graphprotocol/graph-cli
 ```
 
 2. Enter the `celo-nft-marketplace` directory from your terminal
 
-```sh
+```shell
 cd celo-nft-marketplace
 ```
 
 3. Initialize a new subgraph project by running the following command.
 
-```sh
+```shell
 graph init
 ```
 
@@ -68,7 +68,7 @@ This is done so we don't end up having Git Submodules, i.e. a repo inside a repo
 
 Run the following command in your terminal, from the `subgraph` directory:
 
-```sh
+```shell
 # Linux / macOS
 rm -rf .git
 
@@ -98,7 +98,7 @@ You need to set up a deployment key, so that the CLI knows which account to depl
 
 Now, in your terminal, run the following command while pointing to the `subgraph` directory
 
-```sh
+```shell
 graph auth
 ```
 
@@ -280,7 +280,7 @@ Great, we're now finally at the point where we can write our actual script.
 
 One last quick thing before we do that though, run the following command in your terminal
 
-```sh
+```shell
 graph codegen
 ```
 
@@ -446,7 +446,7 @@ There is only one thing we need to do before that, which is we need to visit our
 
 Now we are good to go! Run the following command in your terminal:
 
-```sh
+```shell
 yarn deploy
 ```
 

@@ -17,13 +17,13 @@ It's time to build our frontend now. As always, we will be using [Next.js](https
 
 1. Open up your terminal, and enter the `celo-nft-marketplace` directory
 
-   ```sh
+   ```shell
    cd celo-nft-marketplace
    ```
 
 2. Initialize a new Next.js app by running the following command
 
-   ```sh
+   ```shell
    npx create-next-app@latest frontend
    ```
 
@@ -35,7 +35,7 @@ The `create-next-app` tool also initializes a Git repo when it sets up the proje
 
 Run the following command in your terminal
 
-```sh
+```shell
 cd frontend
 
 # Linux / macOS
@@ -103,7 +103,7 @@ We will use [RainbowKit](https://www.rainbowkit.com/) to simplify wallet connect
 
 Install the required dependencies for RainbowKit to get started. Run the following in your terminal, while pointing to the `frontend` directory
 
-```sh
+```shell
 npm install @rainbow-me/rainbowkit wagmi ethers
 ```
 
@@ -376,7 +376,7 @@ Great, we have the core components ready to start building our homepage now. The
 
 To get started with querying the subgraph, let's install the requisite libraries which will help us make GraphQL queries. Run the following in your terminal, while pointing to the `frontend` directory
 
-```sh
+```shell
 npm install urql graphql
 ```
 
