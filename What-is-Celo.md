@@ -2,7 +2,11 @@
 
 ![](https://i.imgur.com/hteAbzk.png)
 
+## Motivation
+
 6.6 billion people, or roughly 83% of the worlds population, have access to mobile phones. With web3 on it's way to becoming mainstream, future developers will need a way to easily create applications that integrate key features such as being able to send payments to someone's phone number, receiving payments before an account is created by the recipient, etc. 
+
+## Introduction
 
 Celo is a Proof of Stake Layer-1 EVM compatible blockchain, optimized for DeFi, which is designed to be mobile-first and climate friendly. With it's mobile-first design, it aims to bring the benefits of DeFi to the 6 billion+ market of smartphones in the world.
 
