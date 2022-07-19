@@ -68,7 +68,7 @@ After staking, there is an unlocking period of 3 days to retrieve your CELO back
 ## Epoch Rewards
 Similar to how Ethereum has block rewards, Celo has Epoch Rewards, used for minting and distributing new units of CELO as blocks are produced.
 
-Epoch Rewards are paid at the end of every epoch (i.e. after multiple blocks) instead of at every block for block rewards in Ethereum. They are used to reward users for various things:
+Epoch Rewards are paid at the end of every epoch (i.e. after multiple blocks) instead of at every block for block rewards in Ethereum. They are used to rewarding users for various things:
 - Rewards for validators and validator groups
 - Rewards for users who locked their CELO to participate in validator elections voting
 - Build up a community fund for protocol development and infrastructure grants
@@ -85,7 +85,7 @@ Slashing is the process of punishing misbehaving or malicious validators by seiz
 
 **Provable Slashing** conditions are those where information provided by an off-chain external source can be verified on-chain, which can lead to a validator being slashed. In exchange for providing such information, the reporter receives a reward - a portion of the slashed amount. The remainder of the slashed amount if sent to Celo's community fund.
 
-Examples of provable slashing include things like persistent downtime by a validator, where an active validator was absent persistently, in which case they will be slashed 100 CELO. Alternatively, if a validator was proven to have performed double signing i.e produced two different blocks in the same consensus round but with differing hashes, the validator will be slashed 9000 CELO. In both cases, the validator's future rewards will also be suppressed, and they will be ejected from their current validator group.
+Examples of provable slashing include things like persistent downtime by a validator, where an active validator was absent persistently, in which case they will be slashed 100 CELO. Alternatively, if a validator was proven to have performed double signing i.e. produced two different blocks in the same consensus round but with differing hashes, the validator will be slashed 9000 CELO. In both cases, the validator's future rewards will also be suppressed, and they will be ejected from their current validator group.
 
 **Governed Slashing** conditions are those where misbehaviour is hard to formally define and verify on-chain, and requires off-chain knowledge along with discussion on a governance proposal. Slashing can then be performed via governance proposals. This type of slashing is important for preventing advanced validator attacks.
 
