@@ -178,13 +178,10 @@ function createListing(
         // Check caller is owner of NFT, and has approved
         // the marketplace contract to transfer on their behalf
         IERC721 nftContract = IERC721(nftAddress);
+        require(nftContract.ownerOf(tokenId) == msg.sender, "MRKT: Not the owner");
         require(
             nftContract.isApprovedForAll(msg.sender, address(this)) ||
                 nftContract.getApproved(tokenId) == address(this),
-            "MRKT: No approval for NFT"
-        );
-        require(
-            nftContract.getApproved(tokenId) == address(this),
             "MRKT: No approval for NFT"
         );
 
@@ -193,7 +190,7 @@ function createListing(
             price: price,
             seller: msg.sender
         });
-    }
+}
 ```
 
 There's a couple of things we can still do here.
@@ -244,25 +241,23 @@ function createListing(
         address nftAddress,
         uint256 tokenId,
         uint256 price
-    ) external isNotListed(nftAddress, tokenId) isNFTOwner(nftAddress, tokenId) {
-        // Cannot create a listing to sell NFT for <= 0 ETH
+    )
+        external
+        isNotListed(nftAddress, tokenId)
+        isNFTOwner(nftAddress, tokenId)
+    {
         require(price > 0, "MRKT: Price must be > 0");
-
-        // Marketplace must be approved to transfer NFT
         IERC721 nftContract = IERC721(nftAddress);
         require(
             nftContract.isApprovedForAll(msg.sender, address(this)) ||
                 nftContract.getApproved(tokenId) == address(this),
             "MRKT: No approval for NFT"
         );
-
-        // Add listing to mapping
         listings[nftAddress][tokenId] = Listing({
             price: price,
             seller: msg.sender
         });
 
-        // Emit the event
         emit ListingCreated(nftAddress, tokenId, price, msg.sender);
     }
 ```
@@ -425,7 +420,8 @@ contract NFTMarketplace {
         require(price > 0, "MRKT: Price must be > 0");
         IERC721 nftContract = IERC721(nftAddress);
         require(
-            nftContract.getApproved(tokenId) == address(this),
+            nftContract.isApprovedForAll(msg.sender, address(this)) ||
+                nftContract.getApproved(tokenId) == address(this),
             "MRKT: No approval for NFT"
         );
         listings[nftAddress][tokenId] = Listing({
