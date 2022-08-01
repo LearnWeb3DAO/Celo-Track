@@ -83,7 +83,7 @@ Slashing is the process of punishing misbehaving or malicious validators by seiz
 1. Provable Slashing
 2. Governed Slashing
 
-**Provable Slashing** conditions are those where information provided by an off-chain external source can be verified on-chain, which can lead to a validator being slashed. In exchange for providing such information, the reporter receives a reward - a portion of the slashed amount. The remainder of the slashed amount if sent to Celo's community fund.
+**Provable Slashing** conditions are those where information provided by an off-chain external source can be verified on-chain, which can lead to a validator being slashed. In exchange for providing such information, the reporter receives a reward - a portion of the slashed amount. The remainder of the slashed amount sent to Celo's community fund.
 
 Examples of provable slashing include things like persistent downtime by a validator, where an active validator was absent persistently, in which case they will be slashed 100 CELO. Alternatively, if a validator was proven to have performed double signing i.e produced two different blocks in the same consensus round but with differing hashes, the validator will be slashed 9000 CELO. In both cases, the validator's future rewards will also be suppressed, and they will be ejected from their current validator group.
 
