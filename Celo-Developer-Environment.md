@@ -7,7 +7,7 @@ The main differences between Celo and Ethereum development have to do with walle
 
 <Quiz questionId="c0b1f96f-fcce-4129-b3f0-3e42ded87643" />
 
-Typically the easiest option to get started developing is by adding a network to any compatible Ethereum wallet - for e.g. Metamask. But, since Metamask wasn't explicitly designed for Celo, it doesn't support all Celo-native features.
+Typically the easiest option to get started developing is by adding a network to any compatible Ethereum wallet - for example Metamask. But, since Metamask wasn't explicitly designed for Celo, it doesn't support all Celo-native features.
 
 So if you want to use things like Phone Number to Wallet Address mapping and using stablecoins to pay gas for transactions, you're going to need a Celo mobile wallet.
 
