@@ -140,7 +140,7 @@ contract NFTMarketplace {
 }
 ```
 
-Let's try to think through how we should structure this code. Looking at the functions we want, everything is centred around the idea of _Listings_.
+Let's try to think through how we should structure this code. Looking at the functions we want, everything is centered around the idea of _Listings_.
 
 - It might make sense to have a struct to represent all the data in a Listing.
 - NFTs from all various different collections can be traded on the marketplace. So a Listing must represent the NFT contract address, the token ID, the seller address, and the price at the very least.
@@ -507,7 +507,7 @@ Great, now let's install the `dotenv` npm package so we can read environment var
 npm install dotenv
 ```
 
-Awesome! Let's configure the network now. Open up `hardhat.config.js`, and replace it's contents with the following:
+Awesome! Let's configure the network now. Open up `hardhat.config.js`, and replace its contents with the following:
 
 ```javascript
 require("@nomiclabs/hardhat-waffle");
