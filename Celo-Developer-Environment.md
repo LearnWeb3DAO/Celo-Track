@@ -27,7 +27,7 @@ By the end, you should have your phone number linked to your wallet.
 
 ## Testnets
 
-The testnet that is used for development on Celo is called **Alfajores Testnet**. We will be using this for all development.
+The testnet that is used for development on Celo is called **Alfajores (Pronouced 'ahl-fah-hohres') Testnet**. We will be using this for all development.
 
 If you are using the mobile wallet we mentioned above, the developer version of it is also designed for use with the Alfajores Testnet, and you cannot change networks. The mainnet version of the same wallet is called Valora Wallet, and can be found in the App Store/Play Store.
 
