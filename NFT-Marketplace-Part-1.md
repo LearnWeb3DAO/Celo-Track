@@ -329,6 +329,9 @@ function purchaseListing(address nftAddress, uint256 tokenId)
 
     // Buyer must have sent enough ETH
     require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
+	
+	// Delete listing from storage, save some gas
+    delete listings[nftAddress][tokenId];
 
     // Transfer NFT from seller to buyer
     IERC721(nftAddress).safeTransferFrom(
@@ -340,9 +343,6 @@ function purchaseListing(address nftAddress, uint256 tokenId)
     // Transfer ETH sent from buyer to seller
     (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
     require(sent, "Failed to transfer eth");
-    
-    // Delete listing from storage, save some gas
-    delete listings[nftAddress][tokenId];
 
     // Emit the event
     emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
@@ -459,6 +459,8 @@ contract NFTMarketplace {
     {
         Listing memory listing = listings[nftAddress][tokenId];
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
+		
+		delete listings[nftAddress][tokenId];
 
         IERC721(nftAddress).safeTransferFrom(
             listing.seller,
@@ -466,9 +468,7 @@ contract NFTMarketplace {
             tokenId
         );
         (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
-        require(sent, "Failed to transfer eth");
-        
-        delete listings[nftAddress][tokenId];
+        require(sent, "Failed to transfer eth");     
 
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
