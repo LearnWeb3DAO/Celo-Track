@@ -12,7 +12,7 @@ A barrier for the regular usage of a lot of blockchain systems in underserved ar
 
 Attestation means "evidence or proof of something". Celo has an Attestations Protocol which asks users to prove control over a phone number, which they can then link to their wallet address.
 
-Essentially what it is is an OTP-based service. You will receive a one-time passcode on your phone through SMS, and submit that OTP to the Attestation Service, through which you prove control over your phone number. Then, the service will link your phone number to your address.
+Essentially, it is an OTP-based service. You will receive a one-time passcode on your phone through SMS, and submit that OTP to the Attestation Service, through which you prove control over your phone number. Then, the service will link your phone number to your address.
 
 That's pretty simple, and commonly used - but things get tricky when you want to do this in a way where:
 1. There is no centralized authority responsible for sending and verifying OTP messages
@@ -24,7 +24,7 @@ So let's try to understand how this flow *actually* works.
 
 ## Attestation Service
 
-The Attestation Service is a simple `Node.js` service that is used to send SMS's to phone numbers. It does this by integrating with services like `Twilio` and `Nexmo` - and Celo has plans to expand the number of options available in the future.
+The Attestation Service is a simple `Node.js` service that is used to send SMS's to phone numbers. It does this by integrating with services like [Twilio](https://www.twilio.com/) and [Nexmo (now Vonage)](https://developer.vonage.com/) - and Celo has plans to expand the number of options available in the future.
 
 This service is run by all validators on the Celo network, i.e. all validators must be able to send SMS's if required.
 
@@ -42,7 +42,7 @@ This is the second piece of this puzzle.
 
 Now that we have the pieces of the puzzle, let's start putting them together and seeing how this works along with our fictitious character **Alice**.
 
-Suppose Alice has a Celo wallet, and wants to link her phone number, to allow her friends and family to more easily do transactions with her.
+Suppose Alice has a Celo wallet, and wants to link her phone number, to allow her friends and family to easily do transactions with her.
 
 ![](https://i.imgur.com/9Rkaws4.png)
 
