@@ -196,7 +196,7 @@ This code may seem a bit convoluted at first, but most of this is taken directly
 
 ### ✍️ ABIs
 
-To interact with our contracts, we need the ABIs. In our case, we need an ABI for ERC721 contract. Luckily, Wagmi provides us with an ABI we can use.
+To interact with our contracts, we need the ABIs. In our case, we need an ABI for ERC721 contract. Luckily, Wagmi provides us with an [ABI](https://wagmi.sh/docs/constants/abis) we can use.
 
 Create an `abis` folder under `frontend`, and create one files there - `NFTMarketplace.json`.
 
@@ -300,8 +300,8 @@ export default function Listing(props) {
       setImageURI(image);
       setLoading(false);
     } catch (error) {
-       console.error(error);
-       setLoading(false);
+      console.error(error);
+      setLoading(false);
     }
   }
 

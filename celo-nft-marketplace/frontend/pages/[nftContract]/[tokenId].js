@@ -3,8 +3,7 @@ import { formatEther, parseEther } from "ethers/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { createClient } from "urql";
-import { useContract, useSigner } from "wagmi";
-import ERC721ABI from "../../abis/ERC721.json";
+import { useContract, useSigner, erc721ABI } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
 import Navbar from "../../components/Navbar";
 import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
@@ -85,7 +84,7 @@ export default function NFTDetails() {
 
   // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
   async function fetchNFTDetails() {
-    const ERC721Contract = new Contract(nftAddress, ERC721ABI, signer);
+    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
     let tokenURI = await ERC721Contract.tokenURI(tokenId);
     tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 

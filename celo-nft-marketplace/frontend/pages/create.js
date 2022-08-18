@@ -2,8 +2,7 @@ import { Contract } from "ethers";
 import { isAddress, parseEther } from "ethers/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-import { useSigner } from "wagmi";
-import ERC721ABI from "../abis/ERC721.json";
+import { useSigner, erc721ABI } from "wagmi";
 import MarketplaceABI from "../abis/NFTMarketplace.json";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Create.module.css";
@@ -52,7 +51,7 @@ export default function Create() {
     const address = await signer.getAddress();
 
     // Initialize a contract instance for the NFT contract
-    const ERC721Contract = new Contract(nftAddress, ERC721ABI, signer);
+    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
 
     // Make sure user is owner of the NFT in question
     const tokenOwner = await ERC721Contract.ownerOf(tokenId);
