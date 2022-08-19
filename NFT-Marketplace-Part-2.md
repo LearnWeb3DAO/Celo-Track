@@ -313,7 +313,7 @@ export function handleListingUpdated(event: ListingUpdated): void {}
 
 See the files being imported from the `generated` folder? That's what `graph codegen` does. It converts our contract events and GraphQL entity definitions into Typescript types, so we can use them for type-safe programming in our script.
 
-We have four functions to begin with - the `handle` for each of the events as defined in our manifest. Let's start with the first one, `handleListingCreated`
+We have four functions to fill out - the `handle` for each of the events as defined in our manifest. Let's start with the first one, `handleListingCreated`. Insert the following code into the function.
 
 ```typescript
 export function handleListingCreated(event: ListingCreated): void {
@@ -348,7 +348,7 @@ Great, the comments in the code should explain what we're doing, but basically
 2. We assign values to the entity based on the event
 3. We save the entity in the store
 
-Now, let's do `handleListingUpdated`, and see how we modify already existing entities
+Now, let's do `handleListingUpdated`, and see how we modify already existing entities. Insert the following code into the function.
 
 ```typescript
 export function handleListingUpdated(event: ListingUpdated): void {
@@ -377,7 +377,7 @@ export function handleListingUpdated(event: ListingUpdated): void {
 }
 ```
 
-Awesome! Now, let's do `handleListingCanceled`. We don't want to display canceled listings on the marketplace, so we can just delete the entity from the datastore entirely.
+Awesome! Now, let's do `handleListingCanceled`. We don't want to display canceled listings on the marketplace, so we can just delete the entity from the datastore entirely. Insert the following code into the function.
 
 ```typescript
 export function handleListingCanceled(event: ListingCanceled): void {
@@ -406,7 +406,7 @@ One thing to note in this code is that there is no way to delete entities using 
 
 Other than that, the code should be pretty straightforward. We just load an entity from the store, and if it exists, we delete it. So it will no longer show up when we query for listings later.
 
-Lastly, let's do `handleListingPurchased`. In this case, we do not want to delete the listing, we just want to set the `buyer` property on it. Then, in the frontend, we can differentiate active listings from sold listings based on whether or not the `buyer` property is present, and then render them accordingly.
+Lastly, let's do `handleListingPurchased`. In this case, we do not want to delete the listing, we just want to set the `buyer` property on it. Then, in the frontend, we can differentiate active listings from sold listings based on whether or not the `buyer` property is present, and then render them accordingly. Insert the following code into the function.
 
 ```typescript
 export function handleListingPurchased(event: ListingPurchased): void {
