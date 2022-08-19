@@ -474,7 +474,7 @@ Click on it, and you may need to wait a bit for it to finish syncing. The Graph'
 
 ![](https://i.imgur.com/6huv2OA.png)
 
-### 🛝 The Playground
+### 👨‍🔧 The Playground
 
 On the subgraph page, you will see a Playground. The Playground is an online interface to run queries on the GraphQL API exposed by the subgraph, and look at the data.
 
