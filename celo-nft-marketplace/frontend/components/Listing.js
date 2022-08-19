@@ -1,7 +1,6 @@
 import { formatEther } from "ethers/lib/utils";
 import { useEffect, useState } from "react";
-import { useAccount, useContract, useProvider } from "wagmi";
-import ERC721ABI from "../abis/ERC721.json";
+import { useAccount, useContract, useProvider, erc721ABI } from "wagmi";
 import styles from "../styles/Listing.module.css";
 
 export default function Listing(props) {
@@ -18,7 +17,7 @@ export default function Listing(props) {
   const { address, isConnected } = useAccount();
   const ERC721Contract = useContract({
     addressOrName: props.nftAddress,
-    contractInterface: ERC721ABI,
+    contractInterface: erc721ABI,
     signerOrProvider: provider,
   });
 
