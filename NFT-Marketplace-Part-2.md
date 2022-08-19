@@ -313,7 +313,7 @@ export function handleListingUpdated(event: ListingUpdated): void {}
 
 See the files being imported from the `generated` folder? That's what `graph codegen` does. It converts our contract events and GraphQL entity definitions into Typescript types, so we can use them for type-safe programming in our script.
 
-We have four functions to begin with - the `handler`s for each of the events as defined in our manifest. Let's start with the first one, `handleListingCreated`
+We have four functions to begin with - the `handle` for each of the events as defined in our manifest. Let's start with the first one, `handleListingCreated`
 
 ```typescript
 export function handleListingCreated(event: ListingCreated): void {
