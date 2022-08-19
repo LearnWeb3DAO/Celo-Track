@@ -126,7 +126,7 @@ subgraph/
 │  ├─ schema.ts
 ├─ node_modules/
 ├─ src/
-│  ├─ mapping.ts
+│  ├─ nft-marketplace.ts
 ├─ package.json
 ├─ schema.graphql
 ├─ subgraph.yaml
@@ -140,7 +140,7 @@ There are three main files we will be touching in this project, and should take 
 
 - `subgraph.yaml`
 - `schema.graphql`
-- `src/mapping.ts`
+- `src/nft-marketplace.ts`
 
 ### 🤨 The Manifest
 
@@ -192,7 +192,7 @@ Few things to note here:
 
 For now, we will just make one small change to this manifest. Since The Graph works by scanning every block of the blockchain trying to find events which match your data sources, by default, it will start scanning from the genesis block of the blockchain.
 
-*`A Genesis Block` is the name given to the first block of a cryptocurrency. In this case, it's the block 0 of Celo.*
+_`A Genesis Block` is the name given to the first block of a cryptocurrency. In this case, it's the block 0 of Celo._
 
 However, that will take a lot of time, as there are millions of blocks which we know for sure don't have any events we are interested in, since our contract was only recently deployed.
 
@@ -290,7 +290,7 @@ graph codegen
 
 What this does is, it converts our `schema.graphql` entity into Typescript (actually, AssemblyScript) types so we can do type-safe programming in our script. We will see how now!
 
-Open up `src/mapping.ts`, and get rid of the sample code, we will understand what we're doing as we go. Replace it with the following:
+Open up `src/nft-marketplace.ts`, and get rid of the sample code, we will understand what we're doing as we go. Replace it with the following:
 
 ```typescript
 import {
