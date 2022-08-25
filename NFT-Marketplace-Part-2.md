@@ -124,7 +124,7 @@ subgraph/
 │  ├─ schema.ts
 ├─ node_modules/
 ├─ src/
-│  ├─ mapping.ts
+│  ├─ nft-marketplace.ts
 ├─ package.json
 ├─ schema.graphql
 ├─ subgraph.yaml
@@ -138,7 +138,7 @@ There are three main files we will be touching in this project, and should take 
 
 - `subgraph.yaml`
 - `schema.graphql`
-- `src/mapping.ts`
+- `src/nft-marketplace.ts`
 
 ### 🤨 The Manifest
 
@@ -178,7 +178,7 @@ dataSources:
           handler: handleListingPurchased
         - event: ListingUpdated(address,uint256,uint256,address)
           handler: handleListingUpdated
-      file: ./src/mapping.ts
+      file: ./src/nft-marketplace.ts
 ```
 
 Few things to note here:
@@ -186,7 +186,7 @@ Few things to note here:
 - `dataSources` is the main block we want to focus on, and is literally used to define the data source for our indexer
 - `source` block defines the contract address and a reference to its ABI. Note that the ABI is only given a name, as the actual file path is referenced to later in the `abis` block
 - `eventHandlers` has the definitions of all the events our contract had, which the CLI was able to automatically generate from looking at the ABI. Each event also has a `handler` defined, which will be the function name within our script to handle data coming from that event.
-- `file` references `src/mapping.ts` - this is where we will write our script.
+- `file` references `src/nft-marketplace.ts` - this is where we will write our script.
 
 For now, we will just make one small change to this manifest. Since The Graph works by scanning every block of the blockchain trying to find events which match your data sources, by default, it will start scanning from the genesis block of the blockchain.
 
@@ -229,7 +229,7 @@ dataSources:
           handler: handleListingPurchased
         - event: ListingUpdated(address,uint256,uint256,address)
           handler: handleListingUpdated
-      file: ./src/mapping.ts
+      file: ./src/nft-marketplace.ts
 ```
 
 ### 🧱 The Schema
@@ -286,7 +286,7 @@ graph codegen
 
 What this does is, it converts our `schema.graphql` entity into Typescript (actually, AssemblyScript) types so we can do type-safe programming in our script. We will see how now!
 
-Open up `src/mapping.ts`, and get rid of the sample code, we will understand what we're doing as we go. Replace it with the following:
+Open up `src/nft-marketplace.ts`, and get rid of the sample code, we will understand what we're doing as we go. Replace it with the following:
 
 ```typescript
 import {
