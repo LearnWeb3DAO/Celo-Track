@@ -192,15 +192,15 @@ function MyApp({ Component, pageProps }) {
 }
 ```
 
-This code may seem a bit convoluted at first, but most of this is taken directly from RainbowKit documentation. All we are doing is configuring Wagmi and RainbowKit, telling it what chains we want our dApp to support, configuring the chain object, and then wrapping our entire app with the Wagmi and RainbowKit providers so it has access to this data throughout the app.
+This code may seem a bit convoluted at first, but most of this is taken directly from [RainbowKit documentation](https://www.rainbowkit.com/docs/installation). All we are doing is configuring Wagmi and RainbowKit, telling it what chains we want our dApp to support, configuring the chain object, and then wrapping our entire app with the Wagmi and RainbowKit providers so it has access to this data throughout the app.
 
 ### ✍️ ABIs
 
-To interact with our contracts, we need the ABIs. In our case, we need an ABI for ERC721 contracts (we can just use the CeloNFT for this), and an ABI for our NFT Marketplace.
+To interact with our contracts, we need the ABIs. In our case, we need an ABI for ERC721 contract. Luckily, Wagmi provides us with an [ABI](https://wagmi.sh/docs/constants/abis) we can use.
 
-Create an `abis` folder under `frontend`, and create two files there - `ERC721.json` and `NFTMarketplace.json`.
+Create an `abis` folder under `frontend`, and create one files there - `NFTMarketplace.json`.
 
-Copy over the ABI from `hardhat/artifacts/contracts/CeloNFT.sol/CeloNFT.json` into `ERC721.json`, and copy over the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`
+Copy over the **ABI** from the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`. Make sure you copied only the ABI portion and not the whole file.
 
 ### 🗺 Navbar Component
 
@@ -253,8 +253,7 @@ Create a file `Listing.js` under `components`, and write the following code ther
 
 ```jsx
 import { useEffect, useState } from "react";
-import { useAccount, useContract, useProvider } from "wagmi";
-import ERC721ABI from "../abis/ERC721.json";
+import { useAccount, useContract, useProvider, erc721ABI } from "wagmi";
 import styles from "../styles/Listing.module.css";
 import { formatEther } from "ethers/lib/utils";
 
@@ -272,7 +271,7 @@ export default function Listing(props) {
   const { address } = useAccount();
   const ERC721Contract = useContract({
     addressOrName: props.nftAddress,
-    contractInterface: ERC721ABI,
+    contractInterface: erc721ABI,
     signerOrProvider: provider,
   });
 
@@ -300,7 +299,10 @@ export default function Listing(props) {
       setName(metadataJSON.name);
       setImageURI(image);
       setLoading(false);
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   }
 
   // Fetch the NFT details when component is loaded
@@ -524,8 +526,7 @@ import { Contract } from "ethers";
 import { isAddress, parseEther } from "ethers/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-import { useSigner } from "wagmi";
-import ERC721ABI from "../abis/ERC721.json";
+import { useSigner, erc721ABI } from "wagmi";
 import MarketplaceABI from "../abis/NFTMarketplace.json";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Create.module.css";
@@ -574,7 +575,7 @@ export default function Create() {
     const address = await signer.getAddress();
 
     // Initialize a contract instance for the NFT contract
-    const ERC721Contract = new Contract(nftAddress, ERC721ABI, signer);
+    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
 
     // Make sure user is owner of the NFT in question
     const tokenOwner = await ERC721Contract.ownerOf(tokenId);
@@ -722,8 +723,7 @@ import { formatEther, parseEther } from "ethers/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { createClient } from "urql";
-import { useContract, useSigner } from "wagmi";
-import ERC721ABI from "../../abis/ERC721.json";
+import { useContract, useSigner, erc721ABI } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
 import Navbar from "../../components/Navbar";
 import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
@@ -804,7 +804,7 @@ export default function NFTDetails() {
 
   // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
   async function fetchNFTDetails() {
-    const ERC721Contract = new Contract(nftAddress, ERC721ABI, signer);
+    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
     let tokenURI = await ERC721Contract.tokenURI(tokenId);
     tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
