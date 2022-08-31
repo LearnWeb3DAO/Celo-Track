@@ -1,5 +1,5 @@
 import {
-  ListingCanceled,
+  ListingCancelled,
   ListingCreated,
   ListingPurchased,
   ListingUpdated,
@@ -7,7 +7,7 @@ import {
 import { store } from "@graphprotocol/graph-ts";
 import { ListingEntity } from "../generated/schema";
 
-export function handleListingCanceled(event: ListingCanceled): void {
+export function handleListingCancelled(event: ListingCancelled): void {
   // Recreate the ID that refers to the listing
   // Since the listing is being updated, the datastore must already have an entity with this ID
   // from when the listing was first created
