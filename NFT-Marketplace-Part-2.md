@@ -70,11 +70,11 @@ Run the following command in your terminal, from the `subgraph` directory:
 
 ```shell
 # Linux / macOS
-cd hardhat
+cd subgraph
 rm -rf .git
 
 # Windows
-cd hardhat
+cd subgraph
 rmdir /s /q .git
 ```
 
