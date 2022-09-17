@@ -282,7 +282,7 @@ export default function Listing(props) {
   async function fetchNFTDetails() {
     try {
       // Get token URI from contract
-      let tokenURI = await ERC721Contract.tokenURI(0);
+      let tokenURI = await ERC721Contract.tokenURI(props.tokenId);
       // If it's an IPFS URI, replace it with an HTTP Gateway link
       tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
