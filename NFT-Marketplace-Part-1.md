@@ -262,10 +262,10 @@ function createListing(
     }
 ```
 
-Great! Let's do `cancelListing` now, which is quite straightforward. We will also add a new event for `ListingCancelled` and emit that as part of the function to assist with indexing later.
+Great! Let's do `cancelListing` now, which is quite straightforward. We will also add a new event for `ListingCanceled` and emit that as part of the function to assist with indexing later.
 
 ```solidity
-event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
+event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
 
 function cancelListing(address nftAddress, uint256 tokenId)
     external
@@ -277,7 +277,7 @@ function cancelListing(address nftAddress, uint256 tokenId)
     delete listings[nftAddress][tokenId];
 
     // Emit the event
-    emit ListingCancelled(nftAddress, tokenId, msg.sender);
+    emit ListingCanceled(nftAddress, tokenId, msg.sender);
 }
 ```
 
@@ -393,7 +393,7 @@ contract NFTMarketplace {
         address seller
     );
 
-    event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
+    event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
 
     event ListingUpdated(
         address nftAddress,
@@ -439,7 +439,7 @@ contract NFTMarketplace {
         isNFTOwner(nftAddress, tokenId)
     {
         delete listings[nftAddress][tokenId];
-        emit ListingCancelled(nftAddress, tokenId, msg.sender);
+        emit ListingCanceled(nftAddress, tokenId, msg.sender);
     }
 
     function updateListing(
