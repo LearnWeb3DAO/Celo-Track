@@ -262,10 +262,10 @@ function createListing(
     }
 ```
 
-Great! Let's do `cancelListing` now, which is quite straightforward. We will also add a new event for `ListingCanceled` and emit that as part of the function to assist with indexing later.
+Great! Let's do `cancelListing` now, which is quite straightforward. We will also add a new event for `ListingCancelled` and emit that as part of the function to assist with indexing later.
 
 ```solidity
-event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
+event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
 
 function cancelListing(address nftAddress, uint256 tokenId)
     external
@@ -277,7 +277,7 @@ function cancelListing(address nftAddress, uint256 tokenId)
     delete listings[nftAddress][tokenId];
 
     // Emit the event
-    emit ListingCanceled(nftAddress, tokenId, msg.sender);
+    emit ListingCancelled(nftAddress, tokenId, msg.sender);
 }
 ```
 
@@ -329,7 +329,7 @@ function purchaseListing(address nftAddress, uint256 tokenId)
 
     // Buyer must have sent enough ETH
     require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
-	
+
 	// Delete listing from storage, save some gas
     delete listings[nftAddress][tokenId];
 
@@ -393,7 +393,7 @@ contract NFTMarketplace {
         address seller
     );
 
-    event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
+    event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
 
     event ListingUpdated(
         address nftAddress,
@@ -439,7 +439,7 @@ contract NFTMarketplace {
         isNFTOwner(nftAddress, tokenId)
     {
         delete listings[nftAddress][tokenId];
-        emit ListingCanceled(nftAddress, tokenId, msg.sender);
+        emit ListingCancelled(nftAddress, tokenId, msg.sender);
     }
 
     function updateListing(
@@ -459,7 +459,7 @@ contract NFTMarketplace {
     {
         Listing memory listing = listings[nftAddress][tokenId];
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
-		
+
 		delete listings[nftAddress][tokenId];
 
         IERC721(nftAddress).safeTransferFrom(
@@ -468,7 +468,7 @@ contract NFTMarketplace {
             tokenId
         );
         (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
-        require(sent, "Failed to transfer eth");     
+        require(sent, "Failed to transfer eth");
 
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
@@ -484,8 +484,8 @@ We will deploy this code on the Celo Alfajores Testnet, and will use Hardhat to 
 1. Get a private key that has testnet funds on it to deploy the contract
 2. Get an RPC URL for the Celo Testnet
 3. Use environment variables to store our private key and RPC Url
-    1. Create a `.env` file
-    2. Use `dotenv` package to read environment variables within Hardhat
+   1. Create a `.env` file
+   2. Use `dotenv` package to read environment variables within Hardhat
 4. Configure `hardhat.config.js` and add the Alfajores testnet
 5. Write a deployment script for Hardhat to automate deploys
 
