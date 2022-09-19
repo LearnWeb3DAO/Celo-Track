@@ -70,11 +70,11 @@ Run the following command in your terminal, from the `subgraph` directory:
 
 ```shell
 # Linux / macOS
-cd hardhat
+cd subgraph
 rm -rf .git
 
 # Windows
-cd hardhat
+cd subgraph
 rmdir /s /q .git
 ```
 
@@ -282,7 +282,7 @@ type ListingEntity @entity {
 
 Great, we're now finally at the point where we can write our actual script.
 
-One last quick thing before we do that though, run the following command in your terminal
+One last quick thing before we do that though, run the following command in your terminal from the `supgrah` directory
 
 ```shell
 graph codegen
