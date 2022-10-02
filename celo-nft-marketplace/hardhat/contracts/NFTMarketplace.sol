@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -16,6 +16,11 @@ contract NFTMarketplace {
             IERC721(nftAddress).ownerOf(tokenId) == msg.sender,
             "MRKT: Not the owner"
         );
+        _;
+    }
+
+    modifier validPrice(uint256 _price) {
+        require(_price > 0, "MRKT: Price must be > 0");
         _;
     }
 
@@ -39,7 +44,7 @@ contract NFTMarketplace {
         address seller
     );
 
-    event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
+    event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
 
     event ListingUpdated(
         address nftAddress,
@@ -63,8 +68,8 @@ contract NFTMarketplace {
         external
         isNotListed(nftAddress, tokenId)
         isNFTOwner(nftAddress, tokenId)
+        validPrice(price)
     {
-        require(price > 0, "MRKT: Price must be > 0");
         IERC721 nftContract = IERC721(nftAddress);
         require(
             nftContract.isApprovedForAll(msg.sender, address(this)) ||
@@ -85,15 +90,19 @@ contract NFTMarketplace {
         isNFTOwner(nftAddress, tokenId)
     {
         delete listings[nftAddress][tokenId];
-        emit ListingCanceled(nftAddress, tokenId, msg.sender);
+        emit ListingCancelled(nftAddress, tokenId, msg.sender);
     }
 
     function updateListing(
         address nftAddress,
         uint256 tokenId,
         uint256 newPrice
-    ) external isListed(nftAddress, tokenId) isNFTOwner(nftAddress, tokenId) {
-        require(newPrice > 0, "MRKT: Price must be > 0");
+    )
+        external
+        isListed(nftAddress, tokenId)
+        isNFTOwner(nftAddress, tokenId)
+        validPrice(newPrice)
+    {
         listings[nftAddress][tokenId].price = newPrice;
         emit ListingUpdated(nftAddress, tokenId, newPrice, msg.sender);
     }
@@ -104,6 +113,7 @@ contract NFTMarketplace {
         isListed(nftAddress, tokenId)
     {
         Listing memory listing = listings[nftAddress][tokenId];
+
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
 
         delete listings[nftAddress][tokenId];
@@ -113,10 +123,10 @@ contract NFTMarketplace {
             msg.sender,
             tokenId
         );
-        
+
         (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
         require(sent, "Failed to transfer eth");
-        
+
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
 }
