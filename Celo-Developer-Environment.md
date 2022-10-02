@@ -3,7 +3,8 @@
 Since Celo is an EVM based chain, most of the development tooling used for Celo is the same as Ethereum. We can continue to use Solidity as our smart contracts programming language, and also use Hardhat to automate deployments for us. 🎉
 
 ## Wallets
-The main differences between Celo and Ethereum development have to do with wallets. Remember, Celo is a mobile-first blockchain, with features such as their lightweight identity protocol and stablecoin support. 
+
+The main differences between Celo and Ethereum development have to do with wallets. Remember, Celo is a mobile-first blockchain, with features such as their lightweight identity protocol and stablecoin support.
 
 <Quiz questionId="c0b1f96f-fcce-4129-b3f0-3e42ded87643" />
 
@@ -23,7 +24,7 @@ Therefore, for development purposes, if you want access to the full suite of wha
 
 Once you have set up your wallet, it should look something like the above screenshot. Pull the sidebar from the left, and click on the `Supercharge` button to start linking your phone number with your wallet address. The app will guide you through the process, and can take a few minutes while it sets you up with everything.
 
-By the end, you should have your phone number linked to your wallet.
+By the end, you should have your phone number linked to your wallet. If you were unable to get any of the confirmation codes, try a bit later or try resending the codes.
 
 ## Testnets
 
