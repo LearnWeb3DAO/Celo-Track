@@ -329,7 +329,7 @@ function purchaseListing(address nftAddress, uint256 tokenId)
 
     // Buyer must have sent enough ETH
     require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
-	
+
 	// Delete listing from storage, save some gas
     delete listings[nftAddress][tokenId];
 
@@ -459,7 +459,7 @@ contract NFTMarketplace {
     {
         Listing memory listing = listings[nftAddress][tokenId];
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
-		
+
 		delete listings[nftAddress][tokenId];
 
         IERC721(nftAddress).safeTransferFrom(
@@ -468,7 +468,7 @@ contract NFTMarketplace {
             tokenId
         );
         (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
-        require(sent, "Failed to transfer eth");     
+        require(sent, "Failed to transfer eth");
 
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
@@ -484,8 +484,8 @@ We will deploy this code on the Celo Alfajores Testnet, and will use Hardhat to 
 1. Get a private key that has testnet funds on it to deploy the contract
 2. Get an RPC URL for the Celo Testnet
 3. Use environment variables to store our private key and RPC Url
-    1. Create a `.env` file
-    2. Use `dotenv` package to read environment variables within Hardhat
+   1. Create a `.env` file
+   2. Use `dotenv` package to read environment variables within Hardhat
 4. Configure `hardhat.config.js` and add the Alfajores testnet
 5. Write a deployment script for Hardhat to automate deploys
 
