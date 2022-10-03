@@ -282,7 +282,7 @@ type ListingEntity @entity {
 
 Great, we're now finally at the point where we can write our actual script.
 
-One last quick thing before we do that though, run the following command in your terminal from the `supgrah` directory
+One last quick thing before we do that though, run the following command in your terminal from the `subgrah` directory
 
 ```shell
 graph codegen
