@@ -8,7 +8,7 @@ module.exports = {
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: {
-        mnemonic: process.env.PRIVATE_KEY,
+        mnemonic: process.env.MNEMONIC_KEY,
         path: "m/44'/52752'/0'/0",
       },
       chainId: 44787,

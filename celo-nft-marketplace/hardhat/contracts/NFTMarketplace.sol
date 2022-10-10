@@ -44,7 +44,7 @@ contract NFTMarketplace {
         address seller
     );
 
-    event ListingCancelled(address nftAddress, uint256 tokenId, address seller);
+    event ListingCanceled(address nftAddress, uint256 tokenId, address seller);
 
     event ListingUpdated(
         address nftAddress,
@@ -90,7 +90,7 @@ contract NFTMarketplace {
         isNFTOwner(nftAddress, tokenId)
     {
         delete listings[nftAddress][tokenId];
-        emit ListingCancelled(nftAddress, tokenId, msg.sender);
+        emit ListingCanceled(nftAddress, tokenId, msg.sender);
     }
 
     function updateListing(
