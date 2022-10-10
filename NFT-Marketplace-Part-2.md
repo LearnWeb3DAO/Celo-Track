@@ -168,7 +168,7 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ListingCancelled
+        - ListingCanceled
         - ListingCreated
         - ListingPurchased
         - ListingUpdated
@@ -176,8 +176,8 @@ dataSources:
         - name: NFTMarketplace
           file: ./abis/NFTMarketplace.json
       eventHandlers:
-        - event: ListingCancelled(address,uint256,address)
-          handler: handleListingCancelled
+        - event: ListingCanceled(address,uint256,address)
+          handler: handleListingCanceled
         - event: ListingCreated(address,uint256,uint256,address)
           handler: handleListingCreated
         - event: ListingPurchased(address,uint256,address,address)
@@ -221,7 +221,7 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ListingCancelled
+        - ListingCanceled
         - ListingCreated
         - ListingPurchased
         - ListingUpdated
@@ -229,8 +229,8 @@ dataSources:
         - name: NFTMarketplace
           file: ./abis/NFTMarketplace.json
       eventHandlers:
-        - event: ListingCancelled(address,uint256,address)
-          handler: handleListingCancelled
+        - event: ListingCanceled(address,uint256,address)
+          handler: handleListingCanceled
         - event: ListingCreated(address,uint256,uint256,address)
           handler: handleListingCreated
         - event: ListingPurchased(address,uint256,address,address)
@@ -259,7 +259,7 @@ type ExampleEntity @entity {
 
 Now, let's think about the data we want to be storing and indexing. The whole point of doing this is being able to fetch all active listings at any given point, so we can display them on our dApp properly.
 
-Even though we have four events - `ListingCreated`, `ListingUpdated`, `ListingCancelled`, and `ListingPurchased` - all four of them revolve around the concept of 'Listings'.
+Even though we have four events - `ListingCreated`, `ListingUpdated`, `ListingCanceled`, and `ListingPurchased` - all four of them revolve around the concept of 'Listings'.
 
 Therefore, we can just use a single data model/entity - `ListingEntity` - which uniquely identifies a certain listing. When a new listing is created, a new entity is created. Any updates made will update the existing entity. Cancelling will delete that entity. Purchases will mark that entity as purchased, to display appropriately.
 
@@ -286,7 +286,7 @@ type ListingEntity @entity {
 
 Great, we're now finally at the point where we can write our actual script.
 
-One last quick thing before we do that though, run the following command in your terminal
+One last quick thing before we do that though, run the following command in your terminal from the `subgrah` directory
 
 ```shell
 graph codegen
@@ -298,7 +298,7 @@ Open up `src/nft-marketplace.ts`, and get rid of the sample code, we will unders
 
 ```typescript
 import {
-  ListingCancelled,
+  ListingCanceled,
   ListingCreated,
   ListingPurchased,
   ListingUpdated,
@@ -308,7 +308,7 @@ import { ListingEntity } from "../generated/schema";
 
 export function handleListingCreated(event: ListingCreated): void {}
 
-export function handleListingCancelled(event: ListingCancelled): void {}
+export function handleListingCanceled(event: ListingCanceled): void {}
 
 export function handleListingPurchased(event: ListingPurchased): void {}
 
@@ -381,10 +381,10 @@ export function handleListingUpdated(event: ListingUpdated): void {
 }
 ```
 
-Awesome! Now, let's do `handleListingCancelled`. We don't want to display canceled listings on the marketplace, so we can just delete the entity from the datastore entirely. Insert the following code into the function.
+Awesome! Now, let's do `handleListingCanceled`. We don't want to display canceled listings on the marketplace, so we can just delete the entity from the datastore entirely. Insert the following code into the function.
 
 ```typescript
-export function handleListingCancelled(event: ListingCancelled): void {
+export function handleListingCanceled(event: ListingCanceled): void {
   // Recreate the ID that refers to the listing
   // Since the listing is being updated, the datastore must already have an entity with this ID
   // from when the listing was first created
