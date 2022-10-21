@@ -200,7 +200,7 @@ To interact with our contracts, we need the ABIs. In our case, we need an ABI fo
 
 Create an `abis` folder under `frontend`, and create one files there - `NFTMarketplace.json`.
 
-Copy over the **ABI** from the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`. Make sure you copied only the ABI portion and not the whole file.
+Copy over the **ABI** from the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`. Make sure you copied only the ABI(which includes just the array [] portion including the square brackets) portion and not the whole file.
 
 ### 🗺 Navbar Component
 
