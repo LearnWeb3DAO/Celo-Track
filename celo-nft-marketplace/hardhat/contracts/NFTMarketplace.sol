@@ -113,8 +113,10 @@ contract NFTMarketplace {
             msg.sender,
             tokenId
         );
-        payable(listing.seller).transfer(msg.value);
-
+        
+        (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
+        require(sent, "Failed to transfer eth");
+        
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
 }

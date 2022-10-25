@@ -135,12 +135,14 @@ We start off with the basic boilerplate.
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 contract NFTMarketplace {
     // More code here...
 }
 ```
 
-Let's try to think through how we should structure this code. Looking at the functions we want, everything is centred around the idea of _Listings_.
+Let's try to think through how we should structure this code. Looking at the functions we want, everything is centered around the idea of _Listings_.
 
 - It might make sense to have a struct to represent all the data in a Listing.
 - NFTs from all various different collections can be traded on the marketplace. So a Listing must represent the NFT contract address, the token ID, the seller address, and the price at the very least.
@@ -166,8 +168,8 @@ function createListing(
         uint256 tokenId,
         uint256 price
     ) external {
-        // Cannot create a listing to sell NFT for <= 0 ETH
-        require(price >= 0, "MRKT: Price must be > 0");
+        // Cannot create a listing to sell NFT for < 0 ETH
+        require(price > 0, "MRKT: Price must be > 0");
 
         // If listing already existed, listing.price != 0
         require(
@@ -298,8 +300,8 @@ function updateListing(
     uint256 tokenId,
     uint256 newPrice
 ) external isListed(nftAddress, tokenId) isNFTOwner(nftAddress, tokenId) {
-    // Cannot update the price to be <= 0
-    require(newPrice >= 0, "MRKT: Price must be > 0");
+    // Cannot update the price to be < 0
+    require(newPrice > 0, "MRKT: Price must be > 0");
 
     // Update the listing price
     listings[nftAddress][tokenId].price = newPrice;
@@ -330,7 +332,7 @@ function purchaseListing(address nftAddress, uint256 tokenId)
     // Buyer must have sent enough ETH
     require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
 
-    // Delete listing from storage, save some gas
+	// Delete listing from storage, save some gas
     delete listings[nftAddress][tokenId];
 
     // Transfer NFT from seller to buyer
@@ -340,8 +342,9 @@ function purchaseListing(address nftAddress, uint256 tokenId)
         tokenId
     );
 
-    // Transfer ETH sent by buyer to seller
-    payable(listing.seller).transfer(msg.value);
+    // Transfer ETH sent from buyer to seller
+    (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
+    require(sent, "Failed to transfer eth");
 
     // Emit the event
     emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
@@ -459,14 +462,15 @@ contract NFTMarketplace {
         Listing memory listing = listings[nftAddress][tokenId];
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
 
-        delete listings[nftAddress][tokenId];
+		delete listings[nftAddress][tokenId];
 
         IERC721(nftAddress).safeTransferFrom(
             listing.seller,
             msg.sender,
             tokenId
         );
-        payable(listing.seller).transfer(msg.value);
+        (bool sent, ) = payable(listing.seller).call{value: msg.value}("");
+        require(sent, "Failed to transfer eth");
 
         emit ListingPurchased(nftAddress, tokenId, listing.seller, msg.sender);
     }
@@ -482,14 +486,14 @@ We will deploy this code on the Celo Alfajores Testnet, and will use Hardhat to 
 1. Get a private key that has testnet funds on it to deploy the contract
 2. Get an RPC URL for the Celo Testnet
 3. Use environment variables to store our private key and RPC Url
-   1.1. Create a `.env` file
-   1.2. Use `dotenv` package to read environment variables within Hardhat
+   1. Create a `.env` file
+   2. Use `dotenv` package to read environment variables within Hardhat
 4. Configure `hardhat.config.js` and add the Alfajores testnet
 5. Write a deployment script for Hardhat to automate deploys
 
 ---
 
-For the private key, you can either use the mobile wallet we set up earlier, or add the Alfajores Testnet to Metamask as a network using [Chainlist](https://chainlist.org/) and then requesting testnet tokens using the [Celo Faucet](https://celo.org/developers/faucet).
+For the private key, you can either use the mobile wallet we set up earlier, or add the Alfajores Testnet to Metamask as a network using [Chainlist](https://chainlist.org/chain/44787) and then requesting testnet tokens using the [Celo Faucet](https://celo.org/developers/faucet).
 
 For the RPC URL, we will be using the public Celo testnet RPC URL provided by Forno. It is `https://alfajores-forno.celo-testnet.org`
 
@@ -507,7 +511,7 @@ Great, now let's install the `dotenv` npm package so we can read environment var
 npm install dotenv
 ```
 
-Awesome! Let's configure the network now. Open up `hardhat.config.js`, and replace it's contents with the following:
+Awesome! Let's configure the network now. Open up `hardhat.config.js`, and replace its contents with the following:
 
 ```javascript
 require("@nomiclabs/hardhat-waffle");
@@ -597,10 +601,10 @@ NFT Marketplace deployed to: 0x9014DD98Cd14B26c76069356247cE6d762018220
 
 You're all set! You can look up your contract on [CeloScan](https://alfajores.celoscan.io/) as well.
 
-### 🫡 Next Steps
+### 🌟 Next Steps
 
 This level was all about the smart contract. Moving forward, we will develop the subgraph for this contract, and then finally develop the frontend for the dApp using Next.
 
-Drop your CeloScan link in the Discord `#showcase` channel and share your progress! See you in the next one 🫡
+Drop your CeloScan link in the Discord [#showcase](https://discord.gg/HPunW7rAKb) channel and share your progress! See you in the next one 🌟
 
 To verify this level, submit your Marketplace contract address below and select the Celo Alfajores Testnet while doing so.
