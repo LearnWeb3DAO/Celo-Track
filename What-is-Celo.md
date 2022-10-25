@@ -4,7 +4,7 @@
 
 ## Motivation
 
-6.6 billion people, or roughly 83% of the worlds population, have access to mobile phones. With web3 on it's way to becoming mainstream, future developers will need a way to easily create applications that integrate key features such as being able to send payments to someone's phone number, receiving payments before an account is created by the recipient, etc. 
+6.6 billion people, or roughly 83% of the world's population, have access to mobile phones. With web3 on it's way to becoming mainstream, future developers will need a way to easily create applications that integrate key features such as being able to send payments to someone's phone number, receiving payments before an account is created by the recipient, etc. 
 
 ## Introduction
 

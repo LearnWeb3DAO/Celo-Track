@@ -15,7 +15,7 @@ Attestation means "evidence or proof of something". Celo has an Attestations Pro
 Essentially, it is an OTP-based service. You will receive a one-time passcode on your phone through SMS, and submit that OTP to the Attestation Service, through which you prove control over your phone number. Then, the service will link your phone number to your address.
 
 That's pretty simple, and commonly used - but things get tricky when you want to do this in a way where:
-1. There is no centralized authority responsible for sending and verifying OTP messages
+1. There is no centralized authority responsible for sending and verifying OTP messages.
 2. Phone numbers must not be stored on-chain in plaintext, as hackers could try to phish users with high balances through their phone number.
 
 <Quiz questionId="4791e01f-826c-4a07-972e-93b0bb083854" />
