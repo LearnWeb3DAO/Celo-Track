@@ -469,14 +469,12 @@ export default function Home() {
                 key={listing.id}
                 href={`/${listing.nftAddress}/${listing.tokenId}`}
               >
-                <a>
                   <Listing
                     nftAddress={listing.nftAddress}
                     tokenId={listing.tokenId}
                     price={listing.price}
                     seller={listing.seller}
                   />
-                </a>
               </Link>
             );
           })}
@@ -659,9 +657,7 @@ export default function Create() {
         {/* Button to take user to the NFT details page after listing is created */}
         {showListingLink && (
           <Link href={`/${nftAddress}/${tokenId}`}>
-            <a>
               <button>View Listing</button>
-            </a>
           </Link>
         )}
       </div>
@@ -695,6 +691,12 @@ Also create a file named `Create.module.css` under the `styles` folder and add t
 .container button:first-of-type {
   margin-bottom: 1rem;
 }
+```
+
+Now in your terminal which is pointing to `my-app` folder, execute
+
+```bash
+npm run dev
 ```
 
 Your page should now look something like this:
