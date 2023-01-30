@@ -73,14 +73,12 @@ export default function Home() {
                 key={listing.id}
                 href={`/${listing.nftAddress}/${listing.tokenId}`}
               >
-                <a>
                   <Listing
                     nftAddress={listing.nftAddress}
                     tokenId={listing.tokenId}
                     price={listing.price}
                     seller={listing.seller}
                   />
-                </a>
               </Link>
             );
           })}

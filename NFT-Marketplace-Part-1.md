@@ -586,7 +586,13 @@ main()
 
 Amazing! If you've done everything correctly, you should now be able to just deploy your contract.
 
-Run the following command in your terminal, while pointing to the `hardhat` folder.
+First let's compile the contract, open up a terminal pointing at `hardhat` directory and execute this command
+
+```bash
+  npx hardhat compile
+```
+
+To deploy, execute this command in the same directory
 
 ```shell
 npx hardhat run scripts/deploy.js --network alfajores
