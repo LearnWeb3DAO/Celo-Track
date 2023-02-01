@@ -14,7 +14,7 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ListingCancelled
+        - ListingCanceled
         - ListingCreated
         - ListingPurchased
         - ListingUpdated
@@ -22,8 +22,8 @@ dataSources:
         - name: NFTMarketplace
           file: ./abis/NFTMarketplace.json
       eventHandlers:
-        - event: ListingCancelled(address,uint256,address)
-          handler: handleListingCancelled
+        - event: ListingCanceled(address,uint256,address)
+          handler: handleListingCanceled
         - event: ListingCreated(address,uint256,uint256,address)
           handler: handleListingCreated
         - event: ListingPurchased(address,uint256,address,address)

@@ -36,12 +36,12 @@ The `create-next-app` tool also initializes a Git repo when it sets up the proje
 Run the following command in your terminal
 
 ```shell
-cd frontend
-
 # Linux / macOS
+cd frontend
 rm -rf .git
 
 # Windows
+cd frontend
 rmdir /s /q .git
 ```
 
@@ -99,7 +99,7 @@ pages/
 
 ### 💰 Initializing Wallet Connection
 
-We will use [RainbowKit](https://www.rainbowkit.com/) to simplify wallet connection for our dApp.
+We will use [RainbowKit](https://www.rainbowkit.com/) and [Wagmi](https://wagmi.sh/) to simplify wallet connection for our dApp.
 
 Install the required dependencies for RainbowKit to get started. Run the following in your terminal, while pointing to the `frontend` directory
 
@@ -381,6 +381,8 @@ To get started with querying the subgraph, let's install the requisite libraries
 ```shell
 npm install urql graphql
 ```
+
+> NOTE : `urql` is a highly customizable GraphQL client. You can learn more [here](https://formidable.com/open-source/urql/)
 
 Now, grab your Subgraph API URL. Go to [The Graph Dashboard](https://thegraph.com/hosted-service/dashboard), click on your subgraph, and copy the `Queries (HTTP)` link.
 

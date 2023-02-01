@@ -1,3 +1,8 @@
 build/
 node_modules/
 generated
+
+# Lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
