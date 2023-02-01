@@ -135,9 +135,7 @@ export default function Create() {
         {/* Button to take user to the NFT details page after listing is created */}
         {showListingLink && (
           <Link href={`/${nftAddress}/${tokenId}`}>
-            <a>
               <button>View Listing</button>
-            </a>
           </Link>
         )}
       </div>

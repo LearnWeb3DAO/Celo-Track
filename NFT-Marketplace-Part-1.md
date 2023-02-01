@@ -142,6 +142,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 contract NFTMarketplace {
     // More code here...
 }
@@ -336,21 +338,20 @@ function purchaseListing(address nftAddress, uint256 tokenId)
     payable
     isListed(nftAddress, tokenId)
 {
+  // Buyer must have sent enough ETH
+  require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
 
-// Buyer must have sent enough ETH
-require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
+  // Load the listing in a local copy
+  Listing memory listing = listings[nftAddress][tokenId];
 
-// Load the listing in a local copy
-Listing memory listing = listings[nftAddress][tokenId];
+  // Delete listing from storage, save some gas
+  delete listings[nftAddress][tokenId];
 
-// Delete listing from storage, save some gas
-delete listings[nftAddress][tokenId];
-
-// Transfer NFT from seller to buyer
-IERC721(nftAddress).safeTransferFrom(
-    listing.seller,
-    msg.sender,
-    tokenId
+  // Transfer NFT from seller to buyer
+  IERC721(nftAddress).safeTransferFrom(
+      listing.seller,
+      msg.sender,
+      tokenId
 );
 
 // Transfer ETH sent from buyer to seller
@@ -483,7 +484,7 @@ contract NFTMarketplace {
 
         require(msg.value == listing.price, "MRKT: Incorrect ETH supplied");
 
-        delete listings[nftAddress][tokenId];
+		    delete listings[nftAddress][tokenId];
 
         IERC721(nftAddress).safeTransferFrom(
             listing.seller,
@@ -504,6 +505,7 @@ Now, it's time to deploy!
 ### 🚢 Shipping It
 
 We will deploy this code on the Celo Alfajores Testnet, and will use Hardhat to do so. We need to get a few things in order to do this the right way.
+
 
 This will be quite different to how you'd normally deploy contracts on Polygon/Ethereum.
 
@@ -604,7 +606,13 @@ main().catch((error) => {
 
 Amazing! If you've done everything correctly, you should now be able to just deploy your contract.
 
-Run the following command in your terminal, while pointing to the `hardhat` folder.
+First let's compile the contract, open up a terminal pointing at `hardhat` directory and execute this command
+
+```bash
+  npx hardhat compile
+```
+
+To deploy, execute this command in the same directory
 
 ```shell
 npx hardhat run scripts/deploy.js --network alfajores

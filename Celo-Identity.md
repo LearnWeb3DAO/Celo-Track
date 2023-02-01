@@ -2,7 +2,7 @@
 
 From the beginning of this track, we have been talking about Celo's focus on being a mobile-first blockchain. Let's go a little deeper into that concept, and learn about how Celo makes that possible.
 
-Celo's purpose, from the beginning, has always been being able to make financial tools accessible to anyone in the world who has access to a mobile phone. Financial tools that can be unlocked through the power of DeFi, often times in places where users do not even have access to the centralized counterparts.
+Celo's purpose, from the beginning, has always been to be able to make financial tools accessible to anyone in the world who has access to a mobile phone. Financial tools that can be unlocked through the power of DeFi, often times in places where users do not even have access to the centralized counterparts.
 
 A barrier for the regular usage of a lot of blockchain systems in underserved areas is the reliance on having a long, hard to remember wallet address. Celo changes this by introducing their lightweight identity system that can map phone numbers to wallet addresses, in a decentralized and secure manner. Let's see how that works.
 
@@ -15,7 +15,7 @@ Attestation means "evidence or proof of something". Celo has an Attestations Pro
 Essentially, it is an OTP-based service. You will receive a one-time passcode on your phone through SMS, and submit that OTP to the Attestation Service, through which you prove control over your phone number. Then, the service will link your phone number to your address.
 
 That's pretty simple, and commonly used - but things get tricky when you want to do this in a way where:
-1. There is no centralized authority responsible for sending and verifying OTP messages
+1. There is no centralized authority responsible for sending and verifying OTP messages.
 2. Phone numbers must not be stored on-chain in plaintext, as hackers could try to phish users with high balances through their phone number.
 
 <Quiz questionId="4791e01f-826c-4a07-972e-93b0bb083854" />
@@ -91,7 +91,7 @@ The Oblivious Decentralized Identifier Service is a service which computes a pse
 
 Without making it sound like technical jargon, the crux of it falls as such.
 
-ODIS behaves like a multi-sig wallet, wherein multiple entities control different parts of a key, that can be combined together to produce a value. As of October 2021, there are 7 signers, with a threshold of 5 signers required to compute the PRF function. 
+ODIS behaves like a multi-sig wallet, where in multiple entities control different parts of a key, that can be combined together to produce a value. As of October 2021, there are 7 signers, with a threshold of 5 signers required to compute the PRF function. 
 
 This PRF function takes in a certain input, and produces an output given that the threshold number of signers agreed to compute it (5/7). 
 

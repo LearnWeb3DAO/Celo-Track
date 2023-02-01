@@ -200,7 +200,7 @@ To interact with our contracts, we need the ABIs. In our case, we need an ABI fo
 
 Create an `abis` folder under `frontend`, and create one files there - `NFTMarketplace.json`.
 
-Copy over the **ABI** from the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`. Make sure you copied only the ABI portion and not the whole file.
+Copy over the **ABI** from the `hardhat/artifacts/contracts/NFTMarketplace.sol/NFTMarketplace.json` into `NFTMarketplace.json`. Make sure you copied only the ABI(which includes just the array [] portion including the square brackets) portion and not the whole file.
 
 ### 🗺 Navbar Component
 
@@ -471,14 +471,12 @@ export default function Home() {
                 key={listing.id}
                 href={`/${listing.nftAddress}/${listing.tokenId}`}
               >
-                <a>
                   <Listing
                     nftAddress={listing.nftAddress}
                     tokenId={listing.tokenId}
                     price={listing.price}
                     seller={listing.seller}
                   />
-                </a>
               </Link>
             );
           })}
@@ -661,9 +659,7 @@ export default function Create() {
         {/* Button to take user to the NFT details page after listing is created */}
         {showListingLink && (
           <Link href={`/${nftAddress}/${tokenId}`}>
-            <a>
               <button>View Listing</button>
-            </a>
           </Link>
         )}
       </div>
@@ -697,6 +693,12 @@ Also create a file named `Create.module.css` under the `styles` folder and add t
 .container button:first-of-type {
   margin-bottom: 1rem;
 }
+```
+
+Now in your terminal which is pointing to `my-app` folder, execute
+
+```bash
+npm run dev
 ```
 
 Your page should now look something like this:
