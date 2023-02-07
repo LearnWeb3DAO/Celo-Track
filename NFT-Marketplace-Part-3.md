@@ -103,8 +103,10 @@ We will use [RainbowKit](https://www.rainbowkit.com/) and [Wagmi](https://wagmi.
 
 Install the required dependencies for RainbowKit to get started. Run the following in your terminal, while pointing to the `frontend` directory
 
+> Note : We install v5 specifically since the new v6 has breaking changes to the code.
+
 ```shell
-npm install @rainbow-me/rainbowkit wagmi ethers
+npm install @rainbow-me/rainbowkit wagmi ethers@5
 ```
 
 We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets.
