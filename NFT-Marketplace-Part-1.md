@@ -142,8 +142,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-
 contract NFTMarketplace {
     // More code here...
 }
@@ -556,7 +554,7 @@ module.exports = {
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: {
-        mnemonic: process.env.PRIVATE_KEY,
+        mnemonic: process.env.MNEMONIC_KEY,
         path: "m/44'/52752'/0'/0",
       },
       chainId: 44787,
