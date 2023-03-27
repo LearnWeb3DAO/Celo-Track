@@ -14,7 +14,7 @@ So if you want to use things like Phone Number to Wallet Address mapping and usi
 
 ![](https://i.imgur.com/ssV4jax.png)
 
-Therefore, for development purposes, if you want access to the full suite of what Celo has to offer, you should sign up for the official [Celo Developer Wallet](https://celo.org/developers/wallet). Alternatively, you can just add the Celo chain information to Metamask. While you can use it on the web, the full features are only available on mobile, so we recommend installing it on your Android or iOS device.
+Therefore, for development purposes, if you want access to the full suite of what Celo has to offer, you should sign up for the official [Celo Developer Wallet](https://alfajores.celowallet.app/setup). Alternatively, you can just add the Celo chain information to Metamask. While you can use it on the web, the full features are only available on mobile, so we recommend installing it on your Android or iOS device.
 
 <Quiz questionId="6f34d296-ee04-4735-bff0-0573274cbda8" />
 
