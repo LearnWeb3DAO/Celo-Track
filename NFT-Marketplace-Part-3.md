@@ -401,7 +401,7 @@ Then, replace `pages/index.js` default generated code with the following.
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Listing from "../components/Listing";
-import { createClient } from "urql";
+import { createClient, fetchExchange} from "urql";
 import styles from "../styles/Home.module.css";
 import Link from "next/link";
 import { SUBGRAPH_URL } from "../constants";
@@ -434,6 +434,7 @@ export default function Home() {
     // Create a urql client
     const urqlClient = createClient({
       url: SUBGRAPH_URL,
+      exchanges: [fetchExchange]
     });
 
     // Send the query to the subgraph GraphQL API, and get the response
@@ -728,7 +729,7 @@ import { Contract } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { createClient } from "urql";
+import { createClient, fetchExchange} from "urql";
 import { useContract, useSigner, erc721ABI } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
 import Navbar from "../../components/Navbar";
@@ -783,7 +784,10 @@ export default function NFTDetails() {
         }
     `;
 
-    const urqlClient = createClient({ url: SUBGRAPH_URL });
+    const urqlClient = createClient({
+      url: SUBGRAPH_URL,
+      exchanges: [fetchExchange]
+    });
 
     // Send the query to the subgraph GraphQL API, and get the response
     const response = await urqlClient.query(listingQuery).toPromise();
