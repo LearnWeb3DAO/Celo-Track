@@ -99,17 +99,17 @@ pages/
 
 ### 💰 Initializing Wallet Connection
 
-We will use [RainbowKit](https://www.rainbowkit.com/) and [Wagmi](https://wagmi.sh/) to simplify wallet connection for our dApp.
+We will use [RainbowKit](https://www.rainbowkit.com/), [Wagmi](https://wagmi.sh/), and [Viem](https://viem.sh/) to simplify wallet connection for our dApp.
 
 Install the required dependencies for RainbowKit to get started. Run the following in your terminal, while pointing to the `frontend` directory
 
 > Note : We install v5 specifically since the new v6 has breaking changes to the code.
 
 ```shell
-npm install @rainbow-me/rainbowkit wagmi ethers@5
+npm install @rainbow-me/rainbowkit wagmi ethers@5 viem
 ```
 
-We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets.
+We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets. `Viem` will be used to act as a better alternative to `ethers`, but `ethers` will still be used things such as converting units. 
 
 To get RainbowKit to work across your entire app, we need to make some changes to `_app.js`. This is a one-time setup, and will make wallet connection available throughout the rest of our app with ease.
 
@@ -119,49 +119,18 @@ Open up `_app.js` and add the following imports first of all.
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-```
-
-Now, we will create a configuration object for the Celo Alfajores chain, as required by RainbowKit/wagmi
-
-```javascript
-const celoChain = {
-  id: 44787,
-  name: "Celo Alfajores Testnet",
-  network: "alfajores",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Celo",
-    symbol: "CELO",
-  },
-  rpcUrls: {
-    default: "https://alfajores-forno.celo-testnet.org",
-  },
-  blockExplorers: {
-    default: {
-      name: "CeloScan",
-      url: "https://alfajores.celoscan.io",
-    },
-  },
-  testnet: true,
-};
+import { publicProvider } from "wagmi/providers/public";
+import { createConfig, WagmiConfig, configureChains } from "wagmi";
+import { createPublicClient, http } from "viem";
+import { celoAlfajores } from "@wagmi/core/chains";
 ```
 
 Now, we will configure the providers and connectors, which will let RainbowKit know how to interact with the chain
 
 ```javascript
-const { chains, provider } = configureChains(
-  [celoChain],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== celoChain.id) return null;
-        return { http: chain.rpcUrls.default };
-      },
-    }),
-  ]
+const { chains } = configureChains(
+  [celoAlfajores],
+  [publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
@@ -170,13 +139,16 @@ const { connectors } = getDefaultWallets({
 });
 ```
 
-Almost there! We will initialize a wagmi client that combines all the above information, that RainbowKit will use under the hood.
+Almost there! We will initialize a wagmi config that acts as a client and combines all the above information, that RainbowKit will use under the hood.
 
 ```javascript
-const wagmiClient = createClient({
+const config = createConfig({
   autoConnect: true,
-  connectors,
-  provider,
+  publicClient: createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  }),
+  connectors
 });
 ```
 
@@ -185,7 +157,7 @@ Lastly, we will modify the `MyApp` component that was present in `_app.js` and w
 ```jsx
 function MyApp({ Component, pageProps }) {
   return (
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={config}>
       <RainbowKitProvider chains={chains}>
         <Component {...pageProps} />
       </RainbowKitProvider>
@@ -255,9 +227,11 @@ Create a file `Listing.js` under `components`, and write the following code ther
 
 ```jsx
 import { useEffect, useState } from "react";
-import { useAccount, useContract, useProvider, erc721ABI } from "wagmi";
+import { useAccount, erc721ABI } from "wagmi";
+import { createPublicClient, http } from "viem";
 import styles from "../styles/Listing.module.css";
 import { formatEther } from "ethers/lib/utils";
+import { celoAlfajores } from "@wagmi/core/chains";
 
 export default function Listing(props) {
   // State variables to hold information about the NFT
@@ -267,24 +241,28 @@ export default function Listing(props) {
   // Loading state
   const [loading, setLoading] = useState(true);
 
-  // Get the provider, connected address, and a contract instance
-  // for the NFT contract using wagmi
-  const provider = useProvider();
-  const { address } = useAccount();
-  const ERC721Contract = useContract({
-    address: props.nftAddress,
-    abi: erc721ABI,
-    signerOrProvider: provider,
+  //Create a public viem client that acts as a provider, obtain connected address
+  const client = createPublicClient({
+    chain: celoAlfajores,
+    transport: http(),
   });
-
+  const { address } = useAccount();
+  
   // Check if the NFT seller is the connected user
   const isOwner = address.toLowerCase() === props.seller.toLowerCase();
 
   // Fetch NFT details by resolving the token URI
   async function fetchNFTDetails() {
     try {
-      // Get token URI from contract
-      let tokenURI = await ERC721Contract.tokenURI(0);
+      //Get token URI from contract
+      let [tokenURI] = await Promise.all([
+        client.readContract({
+          address: props.nftAddress,
+          abi: erc721ABI,
+          functionName: "tokenURI",
+          args: [0],
+        }),
+      ]);
       // If it's an IPFS URI, replace it with an HTTP Gateway link
       tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
@@ -525,15 +503,16 @@ export const MARKETPLACE_ADDRESS = "0x88b7f8A53E59f9ff3539c9DbDc1c32DDB9c803f1";
 Now open up `pages/create.js`, and add the following code there. Make sure to understand the code, and write it yourself instead of copy-pasting.
 
 ```jsx
-import { Contract } from "ethers";
 import { isAddress, parseEther } from "ethers/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-import { useSigner, erc721ABI } from "wagmi";
+import { erc721ABI, useAccount } from "wagmi";
+import { createPublicClient, createWalletClient, http, custom } from "viem";
 import MarketplaceABI from "../abis/NFTMarketplace.json";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Create.module.css";
 import { MARKETPLACE_ADDRESS } from "../constants";
+import { celoAlfajores } from "@wagmi/core/chains";
 
 export default function Create() {
   // State variables to contain information about the NFT being sold
@@ -543,8 +522,6 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const [showListingLink, setShowListingLink] = useState(false);
 
-  // Get signer from wagmi
-  const { data: signer } = useSigner();
 
   // Main function to be called when 'Create' button is clicked
   async function handleCreateListing() {
