@@ -802,7 +802,7 @@ export default function NFTDetails() {
       transport: http(),
     });
    
-  //Fetches the tokenURI
+  // Get token URI from contract
    let [tokenURI] = await Promise.all([
      client.readContract({
        address: nftAddress,
