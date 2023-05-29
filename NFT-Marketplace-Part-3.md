@@ -241,7 +241,7 @@ export default function Listing(props) {
   // Loading state
   const [loading, setLoading] = useState(true);
 
-  // Creates a public viem client that acts as a provider, obtain connected address
+  // Creates an interface to read from the smart contract and fetches connected address
   const client = createPublicClient({
     chain: celoAlfajores,
     transport: http(),
@@ -254,7 +254,7 @@ export default function Listing(props) {
   // Fetch NFT details by resolving the token URI
   async function fetchNFTDetails() {
     try {
-      //Get token URI from contract
+      // Get token URI from contract
       let [tokenURI] = await Promise.all([
         client.readContract({
           address: props.nftAddress,
