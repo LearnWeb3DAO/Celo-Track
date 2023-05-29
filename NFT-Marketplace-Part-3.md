@@ -109,7 +109,7 @@ Install the required dependencies for RainbowKit to get started. Run the followi
 npm install @rainbow-me/rainbowkit wagmi ethers@5 viem
 ```
 
-We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets. `Viem` will be used to act as a better alternative to `ethers`, but `ethers` will still be used things such as converting units. 
+We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets. `Viem` will be used to act as a better alternative to `ethers`, but `ethers` will still be used for things such as converting units. 
 
 To get RainbowKit to work across your entire app, we need to make some changes to `_app.js`. This is a one-time setup, and will make wallet connection available throughout the rest of our app with ease.
 
