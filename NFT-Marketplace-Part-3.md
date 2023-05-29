@@ -514,6 +514,7 @@ import styles from "../styles/Create.module.css";
 import { MARKETPLACE_ADDRESS } from "../constants";
 import { celoAlfajores } from "@wagmi/core/chains";
 
+
 export default function Create() {
   // State variables to contain information about the NFT being sold
   const [nftAddress, setNftAddress] = useState("");
@@ -551,53 +552,70 @@ export default function Create() {
 
   // Function to check if NFT approval is required
   async function requestApproval() {
-    // Get signer's address
-    const address = await signer.getAddress();
+ //Creates an interface to read from the smart contract
+  const client = createPublicClient({
+   chain: celoAlfajores,
+   transport: http()
+ });
+   //Creates an interface to help execute smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
 
     // Initialize a contract instance for the NFT contract
-    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
+    const [ownerOf, isApprovedForAll] = await Promise.all([
+      client.readContract({
+        address: nftAddress,
+        abi: erc721ABI,
+        functionName: "ownerOf",
+        args: [tokenId],
+      }),
+      client.readContract({
+        address: nftAddress,
+        abi: erc721ABI,
+        functionName: "isApprovedForAll",
+        args: [address, MARKETPLACE_ADDRESS],
+      }),
+    ]);
 
-    // Make sure user is owner of the NFT in question
-    const tokenOwner = await ERC721Contract.ownerOf(tokenId);
-    if (tokenOwner.toLowerCase() !== address.toLowerCase()) {
+    //Make sure user is owner of the NFT in question
+    if (ownerOf.toLowerCase() !== address.toLowerCase()) {
       throw new Error(`You do not own this NFT`);
     }
 
-    // Check if user already gave approval to the marketplace
-    const isApproved = await ERC721Contract.isApprovedForAll(
-      address,
-      MARKETPLACE_ADDRESS
-    );
-
     // If not approved
-    if (!isApproved) {
-      console.log("Requesting approval over NFTs...");
+    if (!isApprovedForAll) {
+    console.log("Requesting approval over NFTs...");
 
-      // Send approval transaction to NFT contract
-      const approvalTxn = await ERC721Contract.setApprovalForAll(
-        MARKETPLACE_ADDRESS,
-        true
-      );
-      await approvalTxn.wait();
+    // Send approval transaction to NFT contract
+    const { request } = await client.simulateContract({
+      account: address,
+      address: nftAddress,
+      abi: erc721ABI,
+      functionName: "setApprovalForAll",
+      args: [MARKETPLACE_ADDRESS, true],
+    });
+    await walletClient.writeContract(request);
     }
   }
 
   // Function to call `createListing` in the marketplace contract
   async function createListing() {
-    // Initialize an instance of the marketplace contract
-    const MarketplaceContract = new Contract(
-      MARKETPLACE_ADDRESS,
-      MarketplaceABI,
-      signer
-    );
+  //Creates an interface to help execute smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
 
-    // Send the create listing transaction
-    const createListingTxn = await MarketplaceContract.createListing(
-      nftAddress,
-      tokenId,
-      parseEther(price)
-    );
-    await createListingTxn.wait();
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "createListing",
+      args: [nftAddress, tokenId, parseEther(price)],
+    });
+    await walletClient.writeContract(request);
   }
 
   return (
@@ -702,23 +720,23 @@ We're almost done! We just need to create the NFT Details page now. This is wher
 Open up `pages/[nftContract]/[tokenId].js` and add the following code. Again, make sure you understand and write the code yourself, and not copy-paste.
 
 ```jsx
-import { Contract } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { createClient, fetchExchange} from "urql";
-import { useContract, useSigner, erc721ABI } from "wagmi";
+import { createClient, fetchExchange } from "urql";
+import { erc721ABI, useAccount } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
+import { celoAlfajores } from "@wagmi/core/chains";
 import Navbar from "../../components/Navbar";
 import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
 import styles from "../../styles/Details.module.css";
+import { createPublicClient, createWalletClient, http, custom } from "viem";
 
 export default function NFTDetails() {
   // Extract NFT contract address and Token ID from URL
   const router = useRouter();
   const nftAddress = router.query.nftContract;
   const tokenId = router.query.tokenId;
-
   // State variables to contain NFT and listing information
   const [listing, setListing] = useState();
   const [name, setName] = useState("");
@@ -735,41 +753,31 @@ export default function NFTDetails() {
   const [canceling, setCanceling] = useState(false);
   const [buying, setBuying] = useState(false);
 
-  // Fetch signer from wagmi
-  const { data: signer } = useSigner();
+  const {address} = useAccount()
 
-  const MarketplaceContract = useContract({
-    addressOrName: MARKETPLACE_ADDRESS,
-    contractInterface: MarketplaceABI,
-    signerOrProvider: signer,
-  });
 
   async function fetchListing() {
     const listingQuery = `
-        query ListingQuery {
-            listingEntities(where: {
-                nftAddress: "${nftAddress}",
-                tokenId: "${tokenId}"
-            }) {
-                id
-                nftAddress
-                tokenId
-                price
-                seller
-                buyer
-            }
-        }
+      query ListingsQuery {
+  listingEntities(where: {nftAddress: "${nftAddress}", tokenId: "${tokenId}"}) {
+    id
+    nftAddress
+    tokenId
+    price
+    seller
+    buyer
+  }
+}
     `;
 
-    const urqlClient = createClient({
-      url: SUBGRAPH_URL,
-      exchanges: [fetchExchange]
-    });
+   const urqlClient = createClient({
+     url: SUBGRAPH_URL,
+     exchanges: [fetchExchange],
+   });
 
     // Send the query to the subgraph GraphQL API, and get the response
     const response = await urqlClient.query(listingQuery).toPromise();
     const listingEntities = response.data.listingEntities;
-
     // If no active listing is found with the given parameters,
     // inform user of the error, then redirect to homepage
     if (listingEntities.length === 0) {
@@ -780,9 +788,6 @@ export default function NFTDetails() {
     // Grab the first listing - which should be the only one matching the parameters
     const listing = listingEntities[0];
 
-    // Get the signer address
-    const address = await signer.getAddress();
-
     // Update state variables
     setIsActive(listing.buyer === null);
     setIsOwner(address.toLowerCase() === listing.seller.toLowerCase());
@@ -791,8 +796,20 @@ export default function NFTDetails() {
 
   // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
   async function fetchNFTDetails() {
-    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
-    let tokenURI = await ERC721Contract.tokenURI(tokenId);
+    //Creates an interface to read from smart contract
+    const client = createPublicClient({
+      chain: celoAlfajores,
+      transport: http(),
+    });
+
+   let [tokenURI] = await Promise.all([
+     client.readContract({
+       address: nftAddress,
+       abi: erc721ABI,
+       functionName: "tokenURI",
+       args: [tokenId],
+     }),
+   ]);
     tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
     const metadata = await fetch(tokenURI);
@@ -807,12 +824,21 @@ export default function NFTDetails() {
 
   // Function to call `updateListing` in the smart contract
   async function updateListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
+
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "updateListing",
+      args: [nftAddress, tokenId, parseEther(newPrice)],
+    });
+    const updateTxn = await walletClient.writeContract(request);
     setUpdating(true);
-    const updateTxn = await MarketplaceContract.updateListing(
-      nftAddress,
-      tokenId,
-      parseEther(newPrice)
-    );
     await updateTxn.wait();
     await fetchListing();
     setUpdating(false);
@@ -820,11 +846,20 @@ export default function NFTDetails() {
 
   // Function to call `cancelListing` in the smart contract
   async function cancelListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
     setCanceling(true);
-    const cancelTxn = await MarketplaceContract.cancelListing(
-      nftAddress,
-      tokenId
-    );
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "cancelListing",
+      args: [nftAddress, tokenId],
+    });
+    const cancelTxn = await walletClient.writeContract(request);
     await cancelTxn.wait();
     window.alert("Listing canceled");
     await router.push("/");
@@ -833,27 +868,303 @@ export default function NFTDetails() {
 
   // Function to call `buyListing` in the smart contract
   async function buyListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
+
     setBuying(true);
-    const buyTxn = await MarketplaceContract.purchaseListing(
-      nftAddress,
-      tokenId,
-      {
-        value: listing.price,
-      }
-    );
+
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "purchaseListing",
+      args: [nftAddress, tokenId],
+      value: listing.price,
+    });
+    const buyTxn = await walletClient.writeContract(request);
     await buyTxn.wait();
     await fetchListing();
     setBuying(false);
   }
 
   // Load listing and NFT data on page load
-  useEffect(() => {
-    if (router.query.nftContract && router.query.tokenId && signer) {
-      Promise.all([fetchListing(), fetchNFTDetails()]).finally(() =>
-        setLoading(false)
-      );
+   useEffect(() => {
+     if (router.query.nftContract && router.query.tokenId && address) {
+       Promise.all([fetchListing(), fetchNFTDetails()]).finally(() =>
+         setLoading(false)
+       );
+     }
+    //fetchListing()
+   }, [router, address]);
+
+  return (
+    <>
+      <Navbar />
+      <div>
+        {loading ? (
+          <span>Loading...</span>
+        ) : (
+          <div className={styles.container}>
+            <div className={styles.details}>
+              <img src={imageURI} />
+              <span>
+                <b>
+                  {name} - #{tokenId}
+                </b>
+              </span>
+              <span>Price: {formatEther(listing.price)} CELO</span>
+              <span>
+                <a
+                  href={`https://alfajores.celoscan.io/address/${listing.seller}`}
+                  target="_blank"
+                >
+                  Seller:{" "}
+                  {isOwner ? "You" : listing.seller.substring(0, 6) + "..."}
+                </a>
+              </span>
+              <span>Status: {listing.buyer === null ? "Active" : "Sold"}</span>
+            </div>
+
+            <div className={styles.options}>
+              {!isActive && (
+                <span>
+                  Listing has been sold to{" "}
+                  <a
+                    href={`https://alfajores.celoscan.io/address/${listing.buyer}`}
+                    target="_blank"
+                  >
+                    {listing.buyer}
+                  </a>
+                </span>
+              )}
+
+              {isOwner && isActive && (
+                <>
+                  <div className={styles.updateListing}>
+                    <input
+                      type="text"
+                      placeholder="New Price (in CELO)"
+                      value={newPrice}
+                      onChange={(e) => {
+                        if (e.target.value === "") {
+                          setNewPrice("0");
+                        } else {
+                          setNewPrice(e.target.value);
+                        }
+                      }}
+                    ></input>
+                    <button disabled={updating} onClick={updateListing}>
+                      Update Listing
+                    </button>
+                  </div>
+
+                  <button
+                    className={styles.btn}
+                    disabled={canceling}
+                    onClick={cancelListing}
+                  >
+                    Cancel Listing
+                  </button>
+                </>
+              )}
+
+              {!isOwner && isActive && (
+                <button
+                  className={styles.btn}
+                  disabled={buying}
+                  onClick={buyListing}
+                >
+                  Buy Listing
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}import { formatEther, parseEther } from "ethers/lib/utils";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { createClient, fetchExchange } from "urql";
+import { erc721ABI, useAccount } from "wagmi";
+import MarketplaceABI from "../../abis/NFTMarketplace.json";
+import { celoAlfajores } from "@wagmi/core/chains";
+import Navbar from "../../components/Navbar";
+import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
+import styles from "../../styles/Details.module.css";
+import { createPublicClient, createWalletClient, http, custom } from "viem";
+
+export default function NFTDetails() {
+  // Extract NFT contract address and Token ID from URL
+  const router = useRouter();
+  const nftAddress = router.query.nftContract;
+  const tokenId = router.query.tokenId;
+  // State variables to contain NFT and listing information
+  const [listing, setListing] = useState();
+  const [name, setName] = useState("");
+  const [imageURI, setImageURI] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  // State variable to contain new price if updating listing
+  const [newPrice, setNewPrice] = useState("");
+
+  // State variables to contain various loading states
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [buying, setBuying] = useState(false);
+
+  const {address} = useAccount()
+
+
+  async function fetchListing() {
+    const listingQuery = `
+      query ListingsQuery {
+  listingEntities(where: {nftAddress: "${nftAddress}", tokenId: "${tokenId}"}) {
+    id
+    nftAddress
+    tokenId
+    price
+    seller
+    buyer
+  }
+}
+    `;
+
+   const urqlClient = createClient({
+     url: SUBGRAPH_URL,
+     exchanges: [fetchExchange],
+   });
+
+    // Send the query to the subgraph GraphQL API, and get the response
+    const response = await urqlClient.query(listingQuery).toPromise();
+    const listingEntities = response.data.listingEntities;
+    // If no active listing is found with the given parameters,
+    // inform user of the error, then redirect to homepage
+    if (listingEntities.length === 0) {
+      window.alert("Listing does not exist or has been canceled");
+      return router.push("/");
     }
-  }, [router, signer]);
+
+    // Grab the first listing - which should be the only one matching the parameters
+    const listing = listingEntities[0];
+
+    // Update state variables
+    setIsActive(listing.buyer === null);
+    setIsOwner(address.toLowerCase() === listing.seller.toLowerCase());
+    setListing(listing);
+  }
+
+  // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
+  async function fetchNFTDetails() {
+    //Creates an interface to read from smart contract
+    const client = createPublicClient({
+      chain: celoAlfajores,
+      transport: http(),
+    });
+
+   let [tokenURI] = await Promise.all([
+     client.readContract({
+       address: nftAddress,
+       abi: erc721ABI,
+       functionName: "tokenURI",
+       args: [tokenId],
+     }),
+   ]);
+    tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+    const metadata = await fetch(tokenURI);
+    const metadataJSON = await metadata.json();
+
+    let image = metadataJSON.imageUrl;
+    image = image.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+    setName(metadataJSON.name);
+    setImageURI(image);
+  }
+
+  // Function to call `updateListing` in the smart contract
+  async function updateListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
+
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "updateListing",
+      args: [nftAddress, tokenId, parseEther(newPrice)],
+    });
+    const updateTxn = await walletClient.writeContract(request);
+    setUpdating(true);
+    await updateTxn.wait();
+    await fetchListing();
+    setUpdating(false);
+  }
+
+  // Function to call `cancelListing` in the smart contract
+  async function cancelListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
+    setCanceling(true);
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "cancelListing",
+      args: [nftAddress, tokenId],
+    });
+    const cancelTxn = await walletClient.writeContract(request);
+    await cancelTxn.wait();
+    window.alert("Listing canceled");
+    await router.push("/");
+    setCanceling(false);
+  }
+
+  // Function to call `buyListing` in the smart contract
+  async function buyListing() {
+    //Creates an interface to interact with smart contract calls
+    const walletClient = createWalletClient({
+      chain: celoAlfajores,
+      transport: custom(window.ethereum),
+    });
+
+    setBuying(true);
+
+    const { request } = await client.simulateContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "purchaseListing",
+      args: [nftAddress, tokenId],
+      value: listing.price,
+    });
+    const buyTxn = await walletClient.writeContract(request);
+    await buyTxn.wait();
+    await fetchListing();
+    setBuying(false);
+  }
+
+  // Load listing and NFT data on page load
+   useEffect(() => {
+     if (router.query.nftContract && router.query.tokenId && address) {
+       Promise.all([fetchListing(), fetchNFTDetails()]).finally(() =>
+         setLoading(false)
+       );
+     }
+    //fetchListing()
+   }, [router, address]);
 
   return (
     <>
