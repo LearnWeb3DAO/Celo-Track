@@ -228,10 +228,9 @@ Create a file `Listing.js` under `components`, and write the following code ther
 ```jsx
 import { useEffect, useState } from "react";
 import { useAccount, erc721ABI } from "wagmi";
-import { createPublicClient, http } from "viem";
+import { readContract } from "@wagmi/core";
 import styles from "../styles/Listing.module.css";
 import { formatEther } from "ethers/lib/utils";
-import { celoAlfajores } from "@wagmi/core/chains";
 
 export default function Listing(props) {
   // State variables to hold information about the NFT
@@ -241,11 +240,6 @@ export default function Listing(props) {
   // Loading state
   const [loading, setLoading] = useState(true);
 
-  // Creates an interface to read from the smart contract and fetches connected address
-  const client = createPublicClient({
-    chain: celoAlfajores,
-    transport: http(),
-  });
   const { address } = useAccount();
   
   // Check if the NFT seller is the connected user
@@ -255,14 +249,12 @@ export default function Listing(props) {
   async function fetchNFTDetails() {
     try {
       // Get token URI from contract
-      let [tokenURI] = await Promise.all([
-        client.readContract({
-          address: props.nftAddress,
-          abi: erc721ABI,
-          functionName: "tokenURI",
-          args: [0],
-        }),
-      ]);
+     let tokenURI = await readContract({
+        address: props.nftAddress,
+        abi: erc721ABI,
+        functionName: "tokenURI",
+        args: [0],
+      });
       // If it's an IPFS URI, replace it with an HTTP Gateway link
       tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
@@ -507,12 +499,11 @@ import { isAddress, parseEther } from "ethers/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import { erc721ABI, useAccount } from "wagmi";
-import { createPublicClient, createWalletClient, http, custom } from "viem";
+import { readContract, writeContract } from "@wagmi/core";
 import MarketplaceABI from "../abis/NFTMarketplace.json";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Create.module.css";
 import { MARKETPLACE_ADDRESS } from "../constants";
-import { celoAlfajores } from "@wagmi/core/chains";
 
 
 export default function Create() {
@@ -552,32 +543,21 @@ export default function Create() {
 
   // Function to check if NFT approval is required
   async function requestApproval() {
- // Creates an interface to read from the smart contract
-  const client = createPublicClient({
-   chain: celoAlfajores,
-   transport: http()
- });
-   // Creates an interface to help execute smart contract calls
-    const walletClient = createWalletClient({
-      chain: celoAlfajores,
-      transport: custom(window.ethereum),
-    });
-    
-   // Checks the owner of that tokenId and if current user has approved the NFT
-    const [ownerOf, isApprovedForAll] = await Promise.all([
-      client.readContract({
-        address: nftAddress,
-        abi: erc721ABI,
-        functionName: "ownerOf",
-        args: [tokenId],
-      }),
-      client.readContract({
-        address: nftAddress,
-        abi: erc721ABI,
-        functionName: "isApprovedForAll",
-        args: [address, MARKETPLACE_ADDRESS],
-      }),
-    ]);
+     // Checks to see if you're the owner of this tokenId
+  const ownerOf = await readContract({
+    address: nftAddress,
+    abi: erc721ABI,
+    functionName: "ownerOf",
+    args: [tokenId]
+  });
+
+// Checks if marketplace has been approved for tokenId
+  const isApprovedForAll = await readContract({
+    address: nftAddress,
+    abi: erc721ABI,
+    functionName: "isApprovedForAll",
+    args: [address, MARKETPLACE_ADDRESS]
+  });
 
     //Make sure user is owner of the NFT in question
     if (ownerOf.toLowerCase() !== address.toLowerCase()) {
@@ -587,35 +567,26 @@ export default function Create() {
     // If not approved
     if (!isApprovedForAll) {
     console.log("Requesting approval over NFTs...");
-
     // Send approval transaction to NFT contract
-    const { request } = await client.simulateContract({
-      account: address,
-      address: nftAddress,
-      abi: erc721ABI,
-      functionName: "setApprovalForAll",
-      args: [MARKETPLACE_ADDRESS, true],
-    });
-    await walletClient.writeContract(request);
+     await writeContract({
+       account: address,
+       address: nftAddress,
+       abi: erc721ABI,
+       functionName: "setApprovalForAll",
+       args: [MARKETPLACE_ADDRESS, true]
+     });
     }
   }
 
   // Function to call `createListing` in the marketplace contract
   async function createListing() {
-  // Creates an interface to help execute smart contract calls
-    const walletClient = createWalletClient({
-      chain: celoAlfajores,
-      transport: custom(window.ethereum),
-    });
-
-    const { request } = await client.simulateContract({
+   await writeContract({
       account: address,
       address: MARKETPLACE_ADDRESS,
       abi: MarketplaceABI,
       functionName: "createListing",
-      args: [nftAddress, tokenId, parseEther(price)],
+      args: [nftAddress, tokenId, parseEther(price)]
     });
-    await walletClient.writeContract(request);
   }
 
   return (
@@ -726,11 +697,10 @@ import { useEffect, useState } from "react";
 import { createClient, fetchExchange } from "urql";
 import { erc721ABI, useAccount } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
-import { celoAlfajores } from "@wagmi/core/chains";
 import Navbar from "../../components/Navbar";
 import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
 import styles from "../../styles/Details.module.css";
-import { createPublicClient, createWalletClient, http, custom } from "viem";
+import { readContract, writeContract } from "@wagmi/core";
 
 export default function NFTDetails() {
   // Extract NFT contract address and Token ID from URL
@@ -796,21 +766,14 @@ export default function NFTDetails() {
 
   // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
   async function fetchNFTDetails() {
-    // Creates an interface to read from smart contract
-    const client = createPublicClient({
-      chain: celoAlfajores,
-      transport: http(),
+    // Get token URI from contract
+    let tokenURI = await readContract({
+      address: nftAddress,
+      abi: erc721ABI,
+      functionName: "tokenURI",
+      args: [tokenId],
     });
-   
-  // Get token URI from contract
-   let [tokenURI] = await Promise.all([
-     client.readContract({
-       address: nftAddress,
-       abi: erc721ABI,
-       functionName: "tokenURI",
-       args: [tokenId],
-     }),
-   ]);
+
     tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
     const metadata = await fetch(tokenURI);
@@ -825,43 +788,30 @@ export default function NFTDetails() {
 
   // Function to call `updateListing` in the smart contract
   async function updateListing() {
-    //Creates an interface to interact with smart contract calls
-    const walletClient = createWalletClient({
-      chain: celoAlfajores,
-      transport: custom(window.ethereum),
-    });
-
-    const { request } = await client.simulateContract({
+    const { hash } = await writeContract({
       account: address,
       address: MARKETPLACE_ADDRESS,
       abi: MarketplaceABI,
       functionName: "updateListing",
       args: [nftAddress, tokenId, parseEther(newPrice)],
     });
-    const updateTxn = await walletClient.writeContract(request);
     setUpdating(true);
-    await updateTxn.wait();
+    await hash.wait();
     await fetchListing();
     setUpdating(false);
   }
 
   // Function to call `cancelListing` in the smart contract
   async function cancelListing() {
-    //Creates an interface to interact with smart contract calls
-    const walletClient = createWalletClient({
-      chain: celoAlfajores,
-      transport: custom(window.ethereum),
-    });
-    setCanceling(true);
-    const { request } = await client.simulateContract({
+   const { hash } = await writeContract({
       account: address,
       address: MARKETPLACE_ADDRESS,
       abi: MarketplaceABI,
       functionName: "cancelListing",
-      args: [nftAddress, tokenId],
-    });
-    const cancelTxn = await walletClient.writeContract(request);
-    await cancelTxn.wait();
+      args: [nftAddress, tokenId]
+    }); 
+    setCanceling(true)
+    await hash.wait();
     window.alert("Listing canceled");
     await router.push("/");
     setCanceling(false);
@@ -869,24 +819,16 @@ export default function NFTDetails() {
 
   // Function to call `buyListing` in the smart contract
   async function buyListing() {
-    //Creates an interface to interact with smart contract calls
-    const walletClient = createWalletClient({
-      chain: celoAlfajores,
-      transport: custom(window.ethereum),
-    });
-
-    setBuying(true);
-
-    const { request } = await client.simulateContract({
-      account: address,
-      address: MARKETPLACE_ADDRESS,
-      abi: MarketplaceABI,
-      functionName: "purchaseListing",
-      args: [nftAddress, tokenId],
-      value: listing.price,
-    });
-    const buyTxn = await walletClient.writeContract(request);
-    await buyTxn.wait();
+   setBuying(true)
+     const { hash } = await writeContract({
+       account: address,
+       address: MARKETPLACE_ADDRESS,
+       abi: MarketplaceABI,
+       functionName: "purchaseListing",
+       args: [nftAddress, tokenId],
+       value: listing.price,
+     }); 
+    await hash.wait();
     await fetchListing();
     setBuying(false);
   }
