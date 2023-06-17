@@ -35,6 +35,8 @@ This is what we will be building, by the end of this lesson series:
 
 ## Smart Contracts
 
+> **⚠️ WARNING:** Following the previous topics, we assume that you have already **created a new wallet for development purposes only with no live funds**. It is essential to only connect to your newly created development Metamask/Alfajores wallet when practicing or testing deployments. **Accidential usage of live wallets can result real ETH usage and an unwanted financial cost.**
+
 Let's create a new directory on your computer, and initialize a Git repo there (which will house all our code) by running the following command :
 
 ```shell
