@@ -570,32 +570,29 @@ module.exports = {
 Whew! Once this is done, we can write our deployment script. Create a new file called `deploy.js` in `hardhat/scripts`.
 
 ```javascript
-const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
-  // Load the NFT contract artifacts
-  const CeloNFTFactory = await ethers.getContractFactory("CeloNFT");
 
-  // Deploy the contract
-  const celoNftContract = await CeloNFTFactory.deploy();
-  await celoNftContract.deployed();
+  // Load the NFT contract artifacts
+  const celoNftContract = await hre.ethers.deployContract();
+  
+  // Wait and Deploy the contract
+  await celoNftContract.waitForDeployment();
 
   // Print the address of the NFT contract
-  console.log("Celo NFT deployed to:", celoNftContract.address);
+  console.log("Celo NFT deployed to:", celoNftContract.target);
 
   // Load the marketplace contract artifacts
-  const NFTMarketplaceFactory = await ethers.getContractFactory(
+  const NFTMarketplace = await hre.ethers.deployContract(
     "NFTMarketplace"
   );
 
-  // Deploy the contract
-  const nftMarketplaceContract = await NFTMarketplaceFactory.deploy();
-
-  // Wait for deployment to finish
-  await nftMarketplaceContract.deployed();
+  // Wait and Deploy the contract
+   await NFTMarketplace.waitForDeployment()
 
   // Log the address of the new contract
-  console.log("NFT Marketplace deployed to:", nftMarketplaceContract.address);
+  console.log("NFT Marketplace deployed to:", nNFTMarketplace.target);
 }
 
 main().catch((error) => {
