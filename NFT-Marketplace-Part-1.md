@@ -592,7 +592,7 @@ async function main() {
    await NFTMarketplace.waitForDeployment()
 
   // Log the address of the new contract
-  console.log("NFT Marketplace deployed to:", nNFTMarketplace.target);
+  console.log("NFT Marketplace deployed to:", NFTMarketplace.target);
 }
 
 main().catch((error) => {
