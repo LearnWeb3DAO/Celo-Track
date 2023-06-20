@@ -99,17 +99,17 @@ pages/
 
 ### 💰 Initializing Wallet Connection
 
-We will use [RainbowKit](https://www.rainbowkit.com/) and [Wagmi](https://wagmi.sh/) to simplify wallet connection for our dApp.
+We will use [RainbowKit](https://www.rainbowkit.com/), [Wagmi](https://wagmi.sh/), and [Viem](https://viem.sh/) to simplify wallet connection for our dApp.
 
 Install the required dependencies for RainbowKit to get started. Run the following in your terminal, while pointing to the `frontend` directory
 
 > Note : We install v5 specifically since the new v6 has breaking changes to the code.
 
 ```shell
-npm install @rainbow-me/rainbowkit wagmi ethers@5
+npm install @rainbow-me/rainbowkit wagmi ethers@5 viem
 ```
 
-We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets.
+We are all familiar with what `ethers` is. `RainbowKit` is a React component library which makes it easy to connect to wallets. Under the hood, it uses `wagmi`, which is a React hooks library to interact with contracts and wallets. `Viem` will be used to act as a better alternative to `ethers`, but `ethers` will still be used for things such as converting units. 
 
 To get RainbowKit to work across your entire app, we need to make some changes to `_app.js`. This is a one-time setup, and will make wallet connection available throughout the rest of our app with ease.
 
@@ -119,49 +119,18 @@ Open up `_app.js` and add the following imports first of all.
 import "@rainbow-me/rainbowkit/styles.css";
 import "../styles/globals.css";
 
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-```
-
-Now, we will create a configuration object for the Celo Alfajores chain, as required by RainbowKit/wagmi
-
-```javascript
-const celoChain = {
-  id: 44787,
-  name: "Celo Alfajores Testnet",
-  network: "alfajores",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Celo",
-    symbol: "CELO",
-  },
-  rpcUrls: {
-    default: "https://alfajores-forno.celo-testnet.org",
-  },
-  blockExplorers: {
-    default: {
-      name: "CeloScan",
-      url: "https://alfajores.celoscan.io",
-    },
-  },
-  testnet: true,
-};
+import { publicProvider } from "wagmi/providers/public";
+import { createConfig, WagmiConfig, configureChains } from "wagmi";
+import { createPublicClient, http } from "viem";
+import { celoAlfajores } from "@wagmi/core/chains";
 ```
 
 Now, we will configure the providers and connectors, which will let RainbowKit know how to interact with the chain
 
 ```javascript
-const { chains, provider } = configureChains(
-  [celoChain],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== celoChain.id) return null;
-        return { http: chain.rpcUrls.default };
-      },
-    }),
-  ]
+const { chains } = configureChains(
+  [celoAlfajores],
+  [publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
@@ -170,13 +139,16 @@ const { connectors } = getDefaultWallets({
 });
 ```
 
-Almost there! We will initialize a wagmi client that combines all the above information, that RainbowKit will use under the hood.
+Almost there! We will initialize a wagmi config that acts as a client and combines all the above information, that RainbowKit will use under the hood.
 
 ```javascript
-const wagmiClient = createClient({
+const config = createConfig({
   autoConnect: true,
-  connectors,
-  provider,
+  publicClient: createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  }),
+  connectors
 });
 ```
 
@@ -185,7 +157,7 @@ Lastly, we will modify the `MyApp` component that was present in `_app.js` and w
 ```jsx
 function MyApp({ Component, pageProps }) {
   return (
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={config}>
       <RainbowKitProvider chains={chains}>
         <Component {...pageProps} />
       </RainbowKitProvider>
@@ -255,7 +227,8 @@ Create a file `Listing.js` under `components`, and write the following code ther
 
 ```jsx
 import { useEffect, useState } from "react";
-import { useAccount, useContract, useProvider, erc721ABI } from "wagmi";
+import { useAccount, erc721ABI } from "wagmi";
+import { readContract } from "@wagmi/core";
 import styles from "../styles/Listing.module.css";
 import { formatEther } from "ethers/lib/utils";
 
@@ -267,16 +240,8 @@ export default function Listing(props) {
   // Loading state
   const [loading, setLoading] = useState(true);
 
-  // Get the provider, connected address, and a contract instance
-  // for the NFT contract using wagmi
-  const provider = useProvider();
   const { address } = useAccount();
-  const ERC721Contract = useContract({
-    address: props.nftAddress,
-    abi: erc721ABI,
-    signerOrProvider: provider,
-  });
-
+  
   // Check if the NFT seller is the connected user
   const isOwner = address.toLowerCase() === props.seller.toLowerCase();
 
@@ -284,7 +249,12 @@ export default function Listing(props) {
   async function fetchNFTDetails() {
     try {
       // Get token URI from contract
-      let tokenURI = await ERC721Contract.tokenURI(0);
+     let tokenURI = await readContract({
+        address: props.nftAddress,
+        abi: erc721ABI,
+        functionName: "tokenURI",
+        args: [0],
+      });
       // If it's an IPFS URI, replace it with an HTTP Gateway link
       tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
@@ -525,15 +495,16 @@ export const MARKETPLACE_ADDRESS = "0x88b7f8A53E59f9ff3539c9DbDc1c32DDB9c803f1";
 Now open up `pages/create.js`, and add the following code there. Make sure to understand the code, and write it yourself instead of copy-pasting.
 
 ```jsx
-import { Contract } from "ethers";
 import { isAddress, parseEther } from "ethers/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
-import { useSigner, erc721ABI } from "wagmi";
+import { erc721ABI, useAccount } from "wagmi";
+import { readContract, writeContract } from "@wagmi/core";
 import MarketplaceABI from "../abis/NFTMarketplace.json";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Create.module.css";
 import { MARKETPLACE_ADDRESS } from "../constants";
+
 
 export default function Create() {
   // State variables to contain information about the NFT being sold
@@ -543,8 +514,6 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const [showListingLink, setShowListingLink] = useState(false);
 
-  // Get signer from wagmi
-  const { data: signer } = useSigner();
 
   // Main function to be called when 'Create' button is clicked
   async function handleCreateListing() {
@@ -574,53 +543,50 @@ export default function Create() {
 
   // Function to check if NFT approval is required
   async function requestApproval() {
-    // Get signer's address
-    const address = await signer.getAddress();
+     // Checks to see if you're the owner of this tokenId
+  const ownerOf = await readContract({
+    address: nftAddress,
+    abi: erc721ABI,
+    functionName: "ownerOf",
+    args: [tokenId]
+  });
 
-    // Initialize a contract instance for the NFT contract
-    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
+// Checks if marketplace has been approved for tokenId
+  const isApprovedForAll = await readContract({
+    address: nftAddress,
+    abi: erc721ABI,
+    functionName: "isApprovedForAll",
+    args: [address, MARKETPLACE_ADDRESS]
+  });
 
-    // Make sure user is owner of the NFT in question
-    const tokenOwner = await ERC721Contract.ownerOf(tokenId);
-    if (tokenOwner.toLowerCase() !== address.toLowerCase()) {
+    //Make sure user is owner of the NFT in question
+    if (ownerOf.toLowerCase() !== address.toLowerCase()) {
       throw new Error(`You do not own this NFT`);
     }
 
-    // Check if user already gave approval to the marketplace
-    const isApproved = await ERC721Contract.isApprovedForAll(
-      address,
-      MARKETPLACE_ADDRESS
-    );
-
     // If not approved
-    if (!isApproved) {
-      console.log("Requesting approval over NFTs...");
-
-      // Send approval transaction to NFT contract
-      const approvalTxn = await ERC721Contract.setApprovalForAll(
-        MARKETPLACE_ADDRESS,
-        true
-      );
-      await approvalTxn.wait();
+    if (!isApprovedForAll) {
+    console.log("Requesting approval over NFTs...");
+    // Send approval transaction to NFT contract
+     await writeContract({
+       account: address,
+       address: nftAddress,
+       abi: erc721ABI,
+       functionName: "setApprovalForAll",
+       args: [MARKETPLACE_ADDRESS, true]
+     });
     }
   }
 
   // Function to call `createListing` in the marketplace contract
   async function createListing() {
-    // Initialize an instance of the marketplace contract
-    const MarketplaceContract = new Contract(
-      MARKETPLACE_ADDRESS,
-      MarketplaceABI,
-      signer
-    );
-
-    // Send the create listing transaction
-    const createListingTxn = await MarketplaceContract.createListing(
-      nftAddress,
-      tokenId,
-      parseEther(price)
-    );
-    await createListingTxn.wait();
+   await writeContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "createListing",
+      args: [nftAddress, tokenId, parseEther(price)]
+    });
   }
 
   return (
@@ -725,23 +691,22 @@ We're almost done! We just need to create the NFT Details page now. This is wher
 Open up `pages/[nftContract]/[tokenId].js` and add the following code. Again, make sure you understand and write the code yourself, and not copy-paste.
 
 ```jsx
-import { Contract } from "ethers";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { createClient, fetchExchange} from "urql";
-import { useContract, useSigner, erc721ABI } from "wagmi";
+import { createClient, fetchExchange } from "urql";
+import { erc721ABI, useAccount } from "wagmi";
 import MarketplaceABI from "../../abis/NFTMarketplace.json";
 import Navbar from "../../components/Navbar";
 import { MARKETPLACE_ADDRESS, SUBGRAPH_URL } from "../../constants";
 import styles from "../../styles/Details.module.css";
+import { readContract, writeContract } from "@wagmi/core";
 
 export default function NFTDetails() {
   // Extract NFT contract address and Token ID from URL
   const router = useRouter();
   const nftAddress = router.query.nftContract;
   const tokenId = router.query.tokenId;
-
   // State variables to contain NFT and listing information
   const [listing, setListing] = useState();
   const [name, setName] = useState("");
@@ -758,41 +723,31 @@ export default function NFTDetails() {
   const [canceling, setCanceling] = useState(false);
   const [buying, setBuying] = useState(false);
 
-  // Fetch signer from wagmi
-  const { data: signer } = useSigner();
+  const {address} = useAccount()
 
-  const MarketplaceContract = useContract({
-    addressOrName: MARKETPLACE_ADDRESS,
-    contractInterface: MarketplaceABI,
-    signerOrProvider: signer,
-  });
 
   async function fetchListing() {
     const listingQuery = `
-        query ListingQuery {
-            listingEntities(where: {
-                nftAddress: "${nftAddress}",
-                tokenId: "${tokenId}"
-            }) {
-                id
-                nftAddress
-                tokenId
-                price
-                seller
-                buyer
-            }
-        }
+      query ListingsQuery {
+  listingEntities(where: {nftAddress: "${nftAddress}", tokenId: "${tokenId}"}) {
+    id
+    nftAddress
+    tokenId
+    price
+    seller
+    buyer
+  }
+}
     `;
 
-    const urqlClient = createClient({
-      url: SUBGRAPH_URL,
-      exchanges: [fetchExchange]
-    });
+   const urqlClient = createClient({
+     url: SUBGRAPH_URL,
+     exchanges: [fetchExchange],
+   });
 
     // Send the query to the subgraph GraphQL API, and get the response
     const response = await urqlClient.query(listingQuery).toPromise();
     const listingEntities = response.data.listingEntities;
-
     // If no active listing is found with the given parameters,
     // inform user of the error, then redirect to homepage
     if (listingEntities.length === 0) {
@@ -803,9 +758,6 @@ export default function NFTDetails() {
     // Grab the first listing - which should be the only one matching the parameters
     const listing = listingEntities[0];
 
-    // Get the signer address
-    const address = await signer.getAddress();
-
     // Update state variables
     setIsActive(listing.buyer === null);
     setIsOwner(address.toLowerCase() === listing.seller.toLowerCase());
@@ -814,8 +766,14 @@ export default function NFTDetails() {
 
   // Function to fetch NFT details from it's metadata, similar to the one in Listing.js
   async function fetchNFTDetails() {
-    const ERC721Contract = new Contract(nftAddress, erc721ABI, signer);
-    let tokenURI = await ERC721Contract.tokenURI(tokenId);
+    // Get token URI from contract
+    let tokenURI = await readContract({
+      address: nftAddress,
+      abi: erc721ABI,
+      functionName: "tokenURI",
+      args: [tokenId],
+    });
+
     tokenURI = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
 
     const metadata = await fetch(tokenURI);
@@ -830,25 +788,30 @@ export default function NFTDetails() {
 
   // Function to call `updateListing` in the smart contract
   async function updateListing() {
+    const { hash } = await writeContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "updateListing",
+      args: [nftAddress, tokenId, parseEther(newPrice)],
+    });
     setUpdating(true);
-    const updateTxn = await MarketplaceContract.updateListing(
-      nftAddress,
-      tokenId,
-      parseEther(newPrice)
-    );
-    await updateTxn.wait();
+    await hash.wait();
     await fetchListing();
     setUpdating(false);
   }
 
   // Function to call `cancelListing` in the smart contract
   async function cancelListing() {
-    setCanceling(true);
-    const cancelTxn = await MarketplaceContract.cancelListing(
-      nftAddress,
-      tokenId
-    );
-    await cancelTxn.wait();
+   const { hash } = await writeContract({
+      account: address,
+      address: MARKETPLACE_ADDRESS,
+      abi: MarketplaceABI,
+      functionName: "cancelListing",
+      args: [nftAddress, tokenId]
+    }); 
+    setCanceling(true)
+    await hash.wait();
     window.alert("Listing canceled");
     await router.push("/");
     setCanceling(false);
@@ -856,27 +819,29 @@ export default function NFTDetails() {
 
   // Function to call `buyListing` in the smart contract
   async function buyListing() {
-    setBuying(true);
-    const buyTxn = await MarketplaceContract.purchaseListing(
-      nftAddress,
-      tokenId,
-      {
-        value: listing.price,
-      }
-    );
-    await buyTxn.wait();
+   setBuying(true)
+     const { hash } = await writeContract({
+       account: address,
+       address: MARKETPLACE_ADDRESS,
+       abi: MarketplaceABI,
+       functionName: "purchaseListing",
+       args: [nftAddress, tokenId],
+       value: listing.price,
+     }); 
+    await hash.wait();
     await fetchListing();
     setBuying(false);
   }
 
   // Load listing and NFT data on page load
-  useEffect(() => {
-    if (router.query.nftContract && router.query.tokenId && signer) {
-      Promise.all([fetchListing(), fetchNFTDetails()]).finally(() =>
-        setLoading(false)
-      );
-    }
-  }, [router, signer]);
+   useEffect(() => {
+     if (router.query.nftContract && router.query.tokenId && address) {
+       Promise.all([fetchListing(), fetchNFTDetails()]).finally(() =>
+         setLoading(false)
+       );
+     }
+    //fetchListing()
+   }, [router, address]);
 
   return (
     <>
